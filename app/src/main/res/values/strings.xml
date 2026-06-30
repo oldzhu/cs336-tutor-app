@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CS336 Tutor</string>
+    <string name="dashboard_title">Learn Language Modeling from Scratch</string>
+    <string name="dashboard_subtitle">Choose a component to learn:</string>
+    <string name="settings_title">Settings</string>
+    <string name="llm_provider_label">LLM Provider</string>
+    <string name="api_key_label">API Key</string>
+    <string name="model_label">Model</string>
+    <string name="language_label">Language</string>
+    <string name="judge_button">Judge My Code</string>
+    <string name="ask_button">Ask a Question</string>
+    <string name="pause_button">Pause</string>
+    <string name="resume_button">Resume</string>
+    <string name="back">Back</string>
+    <string name="locked">Locked</string>
+    <string name="completed">Completed</string>
+    <string name="progress">Progress</string>
+</resources>

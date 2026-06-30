@@ -1,0 +1,54 @@
+# CS336 Tutor App - .gitignore
+
+# Android / Kotlin
+*.class
+*.jar
+*.apk
+*.aab
+*.dex
+*.ap_
+.idea/
+*.iml
+.gradle/
+local.properties
+build/
+app/build/
+*/build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Python / Chaquopy
+__pycache__/
+*.pyc
+*.pyo
+*.so
+python/bin/
+python/lib/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.sublime-*
+
+# Environment
+.env
+.env.local
+*.keystore
+debug.keystore
+google-services.json
+
+# Gradle
+!gradle/wrapper/gradle-wrapper.jar
+/gradle/wrapper/gradle-wrapper.jar
+
+# Docs generated
+docs/api/
