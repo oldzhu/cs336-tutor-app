@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">CS336 导师</string>
+    <string name="dashboard_title">从零构建语言模型</string>
+    <string name="dashboard_subtitle">选择要学习的组件：</string>
+    <string name="settings_title">设置</string>
+
+    <!-- Settings -->
+    <string name="llm_provider_label">LLM 提供商</string>
+    <string name="api_key_label">API 密钥</string>
+    <string name="model_label">模型</string>
+    <string name="language_label">语言</string>
+    <string name="language_en">English</string>
+    <string name="language_zh">中文</string>
+    <string name="remote_provider">远程</string>
+    <string name="local_provider">本地</string>
+    <string name="api_endpoint_label">API 端点 URL</string>
+    <string name="local_endpoint_label">本地端点 URL</string>
+    <string name="save_settings">保存设置</string>
+    <string name="saving">保存中...</string>
+    <string name="settings_saved">✅ 设置已保存</string>
+    <string name="settings_hint">保存后，应用将使用配置的提供商进行所有 AI 功能（讲解、评判、问答）。</string>
+    <string name="local_endpoint_hint">例如：局域网内的 Ollama: http://YOUR_IP:11434</string>
+
+    <!-- Tutor -->
+    <string name="judge_button">评判我的代码</string>
+    <string name="ask_button">提问</string>
+    <string name="back">返回</string>
+    <string name="ai_tutor_title">📖 AI 导师</string>
+    <string name="your_code_title">✏️ 你的代码</string>
+    <string name="code_section">💻 代码</string>
+    <string name="explanation_section">🧠 这行代码做什么</string>
+    <string name="hints_section">💡 提示</string>
+    <string name="all_lines_title">📜 全部代码</string>
+    <string name="q_and_a_title">❓ 提问</string>
+    <string name="q_and_a_placeholder">为什么这行代码...</string>
+    <string name="typing_indicator">▊ 正在输入...</string>
+    <string name="prev_line">上一行</string>
+    <string name="next_line">下一行</string>
+    <string name="close">关闭</string>
+    <string name="select_line_hint">选择一行以查看讲解。</string>
+    <string name="score_format">得分: %1$d%% %2$s</string>
+    <string name="pass_label">✅ 通过</string>
+    <string name="fail_label">❌ 需要改进</string>
+
+    <!-- Component names -->
+    <string name="component_bpe">BPE 分词器</string>
+    <string name="component_bpe_desc">Byte-Pair Encoding — 从零实现子词分词</string>
+    <string name="component_rmsnorm">RMSNorm</string>
+    <string name="component_rmsnorm_desc">均方根层归一化</string>
+    <string name="component_rope">RoPE 旋转位置编码</string>
+    <string name="component_rope_desc">Transformer 的相对位置编码</string>
+    <string name="component_attention">多头自注意力</string>
+    <string name="component_attention_desc">因果缩放点积注意力</string>
+    <string name="component_ffn">位置前馈网络 (SwiGLU)</string>
+    <string name="component_ffn_desc">使用 SwiGLU 激活的前馈网络</string>
+    <string name="component_transformer">完整 Transformer 块</string>
+    <string name="component_transformer_desc">将所有组件组装成仅解码器 Transformer 块</string>
+
+    <!-- Progress -->
+    <string name="locked">🔒 已锁定</string>
+    <string name="completed">已完成</string>
+    <string name="progress">进度</string>
+</resources>

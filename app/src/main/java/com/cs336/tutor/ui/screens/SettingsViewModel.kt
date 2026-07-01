@@ -11,7 +11,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class SettingsUiState(
-    val isRemote: Boolean = true,
+    val isRemote: Boolean = true
+    val isChinese: Boolean = false,
     val apiEndpoint: String = "https://api.deepseek.com/v1",
     val apiKey: String = "",
     val modelName: String = "deepseek-v4-flash",
@@ -43,6 +44,7 @@ class SettingsViewModel @Inject constructor() : ViewModel() {
     }
 
     fun onLocalEndpointChanged(endpoint: String) {
+n    fun onLanguageChanged(isChinese: Boolean) { _uiState.value = _uiState.value.copy(isChinese = isChinese, isSaved = false) }
         _uiState.value = _uiState.value.copy(localEndpoint = endpoint, isSaved = false)
     }
 
