@@ -26,7 +26,7 @@ app/src/test/        → Kotlin JUnit tests (fast, JVM)
 app/src/androidTest/ → Instrumented tests (needs device)
 ```
 
-## RULE 2: OpenCode Session Continuity
+## RULE 2: OpenCode as Mandatory Development Tool
 
 **Always resume from the last OpenCode session:**
 

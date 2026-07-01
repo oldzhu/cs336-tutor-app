@@ -16,7 +16,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -35,8 +34,6 @@ fun SplitScreenTutorScreen(
     viewModel: SplitScreenTutorViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val configuration = LocalConfiguration.current
-    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
 
     LaunchedEffect(componentId) {
         viewModel.initialize(componentId)
@@ -61,43 +58,9 @@ fun SplitScreenTutorScreen(
             ) {
                 CircularProgressIndicator()
             }
-        } else if (isLandscape) {
-            // Landscape: vertical stack with distinct panels
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-            ) {
-                AIExplanationPanel(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(0.45f),
-                    codeLines = uiState.codeLines,
-                    currentLineIndex = uiState.currentLineIndex,
-                    currentLine = uiState.currentLine,
-                    explanation = uiState.explanation,
-                    onPrevious = viewModel::previousLine,
-                    onNext = viewModel::nextLine
-                )
-                HorizontalDivider()
-                CodeEditorPanel(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(0.55f),
-                    code = uiState.userCode,
-                    onCodeChange = viewModel::onCodeChange,
-                    onJudge = viewModel::onJudge,
-                    judgeResult = uiState.judgeResult,
-                    isLoading = uiState.isLoading,
-                    questionText = uiState.questionText,
-                    onQuestionChanged = viewModel::onQuestionChanged,
-                    answerText = uiState.answerText,
-                    isAnswerLoading = uiState.isAnswerLoading,
-                    onAskQuestion = viewModel::onAskQuestion
-                )
-            }
         } else {
-            // Portrait: side-by-side
+            // Always side-by-side split — works for both portrait and landscape
+            // Each panel is independently scrollable via touch scroll
             Row(
                 modifier = Modifier
                     .fillMaxSize()
@@ -145,7 +108,7 @@ fun AIExplanationPanel(
     val lineCount = codeLines.size
     var showAllLines by remember { mutableStateOf(false) }
     
-    // Typing animation: retype code character by character
+    // Typing animation: retype code character by character at human speed
     var displayedCode by remember { mutableStateOf("") }
     val targetCode = currentLine?.code ?: ""
     
@@ -153,7 +116,7 @@ fun AIExplanationPanel(
         displayedCode = ""
         if (targetCode.isNotEmpty()) {
             for (i in targetCode.indices) {
-                delay(80) // typing speed (natural human pace)
+                delay(80) // human typing speed
                 displayedCode = targetCode.substring(0, i + 1)
             }
         }
@@ -162,7 +125,6 @@ fun AIExplanationPanel(
     // Auto-repeat: type → pause → clear → retype loop
     var repeatTrigger by remember { mutableStateOf(0) }
     LaunchedEffect(repeatTrigger, targetCode) {
-        // Wait for typing to finish
         if (targetCode.isNotEmpty()) {
             delay(targetCode.length * 80L + 2000) // typing time + 2s pause
             displayedCode = ""  // clear the code
@@ -258,7 +220,6 @@ fun AIExplanationPanel(
                             lineHeight = 18.sp
                         )
                     }
-                    // Blinking cursor
                     if (displayedCode.length < targetCode.length) {
                         Text(
                             text = "▊ typing...",
@@ -333,7 +294,7 @@ fun AIExplanationPanel(
                                 color = if (isCurrent) MaterialTheme.colorScheme.primaryContainer
                                         else MaterialTheme.colorScheme.surface,
                                 shape = MaterialTheme.shapes.small,
-                                onClick = { showAllLines = false; /* navigate to this line */ }
+                                onClick = { showAllLines = false }
                             ) {
                                 Row(modifier = Modifier.padding(8.dp)) {
                                     Text(
@@ -375,8 +336,13 @@ fun CodeEditorPanel(
     onAskQuestion: (String) -> Unit
 ) {
     var localQuestion by remember { mutableStateOf("") }
+    val scrollState = rememberScrollState()
     
-    Column(modifier = modifier.fillMaxHeight()) {
+    Column(
+        modifier = modifier
+            .fillMaxHeight()
+            .verticalScroll(scrollState)
+    ) {
         // Code editor header
         Surface(color = MaterialTheme.colorScheme.tertiaryContainer, tonalElevation = 2.dp) {
             Text("✏️ Your Code", modifier = Modifier.padding(8.dp), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
@@ -386,9 +352,20 @@ fun CodeEditorPanel(
         OutlinedTextField(
             value = code,
             onValueChange = onCodeChange,
-            modifier = Modifier.fillMaxWidth().weight(0.5f).padding(8.dp),
-            textStyle = androidx.compose.ui.text.TextStyle(fontFamily = FontFamily.Monospace, fontSize = 13.sp, lineHeight = 20.sp, color = Color(0xFFD4D4D4)),
-            colors = OutlinedTextFieldDefaults.colors(unfocusedContainerColor = Color(0xFF1E1E1E), focusedContainerColor = Color(0xFF1E1E1E))
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 200.dp)
+                .padding(8.dp),
+            textStyle = androidx.compose.ui.text.TextStyle(
+                fontFamily = FontFamily.Monospace, 
+                fontSize = 13.sp, 
+                lineHeight = 20.sp, 
+                color = Color(0xFFD4D4D4)
+            ),
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedContainerColor = Color(0xFF1E1E1E), 
+                focusedContainerColor = Color(0xFF1E1E1E)
+            )
         )
         
         // Judge button + results
@@ -403,13 +380,19 @@ fun CodeEditorPanel(
         
         // Judge result
         AnimatedVisibility(visible = judgeResult != null) {
-            judgeResult?.let { result ->
+            val result = judgeResult
+            if (result != null) {
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(8.dp),
-                    colors = CardDefaults.cardColors(containerColor = if (result.passed) Color(0xFF1B5E20) else Color(0xFFB71C1C))
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (result.passed) Color(0xFF1B5E20) else Color(0xFFB71C1C)
+                    )
                 ) {
                     Column(Modifier.padding(8.dp)) {
-                        Text("Score: ${(result.score * 100).toInt()}%  ${if (result.passed) "✅ Pass" else "❌ Needs work"}", color = Color.White, style = MaterialTheme.typography.labelMedium)
+                        Text(
+                            "Score: ${(result.score * 100).toInt()}%  ${if (result.passed) "✅ Pass" else "❌ Needs work"}",
+                            color = Color.White, style = MaterialTheme.typography.labelMedium
+                        )
                         Text(result.feedback, color = Color.White, style = MaterialTheme.typography.bodySmall)
                         result.suggestions.forEach { Text("→ $it", color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.bodySmall) }
                     }
@@ -420,7 +403,7 @@ fun CodeEditorPanel(
         HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp))
         
         // Q&A section
-        Column(modifier = Modifier.weight(0.3f).padding(8.dp)) {
+        Column(modifier = Modifier.padding(8.dp)) {
             Text("❓ Ask a Question", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 OutlinedTextField(
@@ -431,8 +414,12 @@ fun CodeEditorPanel(
                     singleLine = true,
                     textStyle = MaterialTheme.typography.bodySmall
                 )
-                IconButton(onClick = { onAskQuestion(localQuestion); localQuestion = "" }, enabled = localQuestion.isNotBlank()) {
-                    Icon(Icons.Default.Send, "Ask", tint = if (localQuestion.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
+                IconButton(
+                    onClick = { onAskQuestion(localQuestion); localQuestion = "" },
+                    enabled = localQuestion.isNotBlank()
+                ) {
+                    Icon(Icons.Default.Send, "Ask", tint = if (localQuestion.isNotBlank()) 
+                        MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             if (isAnswerLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
