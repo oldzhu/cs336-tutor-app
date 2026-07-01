@@ -41,6 +41,11 @@ class SettingsViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(isChinese = isChinese, isSaved = false)
     }
 
+    fun saveLanguage() {
+        val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        prefs.edit().putString("language", if (_uiState.value.isChinese) "zh" else "en").commit()
+    }
+
     fun onProviderChanged(isRemote: Boolean) {
         _uiState.value = _uiState.value.copy(isRemote = isRemote, isSaved = false)
     }
@@ -62,10 +67,11 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun onSave() {
+        // Save language preference synchronously before recreate
+        val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        prefs.edit().putString("language", if (_uiState.value.isChinese) "zh" else "en").commit() // commit = synchronous
         _uiState.value = _uiState.value.copy(isSaving = true)
         viewModelScope.launch {
-            val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
-            prefs.edit().putString("language", if (_uiState.value.isChinese) "zh" else "en").apply()
             delay(500)
             _uiState.value = _uiState.value.copy(isSaving = false, isSaved = true)
             delay(2000)

@@ -159,8 +159,9 @@ fun SettingsScreen(
 
             Button(
                 onClick = {
+                    viewModel.saveLanguage()
                     viewModel.onSave()
-                    (context as? android.app.Activity)?.recreate()
+                    (context as android.app.Activity).recreate()
                 },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !uiState.isSaving
