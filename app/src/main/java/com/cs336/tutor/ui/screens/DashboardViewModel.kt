@@ -2,6 +2,7 @@ package com.cs336.tutor.ui.screens
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cs336.tutor.domain.engine.TutorEngine
 import com.cs336.tutor.domain.model.TutorComponent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +17,9 @@ data class DashboardUiState(
 )
 
 @HiltViewModel
-class DashboardViewModel @Inject constructor() : ViewModel() {
+class DashboardViewModel @Inject constructor(
+    private val tutorEngine: TutorEngine
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
@@ -27,49 +30,13 @@ class DashboardViewModel @Inject constructor() : ViewModel() {
 
     private fun loadComponents() {
         viewModelScope.launch {
-            // TODO: Load from ComponentRegistry
-            val mockComponents = listOf(
-                TutorComponent(
-                    id = "bpe",
-                    name = "BPE Tokenizer",
-                    description = "Byte-Pair Encoding — subword tokenization from scratch",
-                    isLocked = false
-                ),
-                TutorComponent(
-                    id = "rmsnorm",
-                    name = "RMSNorm",
-                    description = "Root Mean Square Layer Normalization",
-                    isLocked = true
-                ),
-                TutorComponent(
-                    id = "rope",
-                    name = "Rotary Position Embedding (RoPE)",
-                    description = "Relative position encoding for transformers",
-                    isLocked = true
-                ),
-                TutorComponent(
-                    id = "attention",
-                    name = "Multi-Head Self-Attention",
-                    description = "Causal scaled dot-product attention",
-                    isLocked = true
-                ),
-                TutorComponent(
-                    id = "ffn",
-                    name = "Position-wise FFN (SwiGLU)",
-                    description = "Feed-forward network with SwiGLU activation",
-                    isLocked = true
-                ),
-                TutorComponent(
-                    id = "transformer",
-                    name = "Full Transformer Block",
-                    description = "Assemble all components into a decoder-only block",
-                    isLocked = true
+            // Collect from TutorEngine which has BPE pre-registered
+            tutorEngine.components.collect { components ->
+                _uiState.value = DashboardUiState(
+                    components = components,
+                    isLoading = false
                 )
-            )
-            _uiState.value = DashboardUiState(
-                components = mockComponents,
-                isLoading = false
-            )
+            }
         }
     }
 }

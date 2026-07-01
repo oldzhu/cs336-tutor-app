@@ -1,5 +1,6 @@
 package com.cs336.tutor.data.repository
 
+import com.cs336.tutor.domain.engine.BPEComponent
 import com.cs336.tutor.domain.engine.TutorEngine
 import com.cs336.tutor.domain.model.ComponentSpec
 import com.cs336.tutor.domain.model.TutorComponent
@@ -17,6 +18,23 @@ class TutorEngineImpl @Inject constructor() : TutorEngine {
 
     private val _currentComponent = MutableStateFlow<TutorComponent?>(null)
     override val currentComponent: StateFlow<TutorComponent?> = _currentComponent.asStateFlow()
+
+    init {
+        // Register the BPE component by default
+        registerComponentSync(BPEComponent.spec)
+    }
+
+    private fun registerComponentSync(spec: ComponentSpec) {
+        val component = TutorComponent(
+            id = spec.id,
+            name = spec.name,
+            description = spec.description,
+            isLocked = false,
+            prerequisites = spec.prerequisites,
+            codeLines = spec.codeLines
+        )
+        _components.value = _components.value + component
+    }
 
     override suspend fun loadComponent(id: String): TutorComponent {
         return _components.value.firstOrNull { it.id == id }

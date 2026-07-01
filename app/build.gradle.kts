@@ -10,6 +10,7 @@ plugins {
 android {
     namespace = "com.cs336.tutor"
     compileSdk = 35
+    buildToolsVersion = "34.0.0"
 
     defaultConfig {
         applicationId = "com.cs336.tutor"
