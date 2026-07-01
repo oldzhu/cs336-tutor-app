@@ -153,17 +153,22 @@ fun AIExplanationPanel(
         displayedCode = ""
         if (targetCode.isNotEmpty()) {
             for (i in targetCode.indices) {
-                delay(30) // typing speed
+                delay(80) // typing speed (natural human pace)
                 displayedCode = targetCode.substring(0, i + 1)
             }
         }
     }
     
-    // Auto-repeat: pause then retype
+    // Auto-repeat: type → pause → clear → retype loop
     var repeatTrigger by remember { mutableStateOf(0) }
     LaunchedEffect(repeatTrigger, targetCode) {
-        delay(3000) // pause after typing completes
-        repeatTrigger++
+        // Wait for typing to finish
+        if (targetCode.isNotEmpty()) {
+            delay(targetCode.length * 80L + 2000) // typing time + 2s pause
+            displayedCode = ""  // clear the code
+            delay(500)          // brief blank pause
+            repeatTrigger++     // trigger retype
+        }
     }
 
     Column(modifier = modifier.fillMaxHeight()) {

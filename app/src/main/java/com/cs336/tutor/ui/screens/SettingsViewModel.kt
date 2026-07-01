@@ -14,7 +14,7 @@ data class SettingsUiState(
     val isRemote: Boolean = true,
     val apiEndpoint: String = "https://api.deepseek.com/v1",
     val apiKey: String = "",
-    val modelName: String = "deepseek-v4-pro",
+    val modelName: String = "deepseek-v4-flash",
     val localEndpoint: String = "http://localhost:11434",
     val isSaving: Boolean = false,
     val isSaved: Boolean = false
