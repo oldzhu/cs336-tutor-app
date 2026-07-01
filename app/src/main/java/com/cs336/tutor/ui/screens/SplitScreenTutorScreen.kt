@@ -1,7 +1,11 @@
 package com.cs336.tutor.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -12,13 +16,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cs336.tutor.domain.model.CodeLineStub
 import com.cs336.tutor.domain.model.JudgeResult
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,6 +35,8 @@ fun SplitScreenTutorScreen(
     viewModel: SplitScreenTutorViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
 
     LaunchedEffect(componentId) {
         viewModel.initialize(componentId)
@@ -52,13 +61,48 @@ fun SplitScreenTutorScreen(
             ) {
                 CircularProgressIndicator()
             }
+        } else if (isLandscape) {
+            // Landscape: vertical stack with distinct panels
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                AIExplanationPanel(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(0.45f),
+                    codeLines = uiState.codeLines,
+                    currentLineIndex = uiState.currentLineIndex,
+                    currentLine = uiState.currentLine,
+                    explanation = uiState.explanation,
+                    onPrevious = viewModel::previousLine,
+                    onNext = viewModel::nextLine
+                )
+                HorizontalDivider()
+                CodeEditorPanel(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(0.55f),
+                    code = uiState.userCode,
+                    onCodeChange = viewModel::onCodeChange,
+                    onJudge = viewModel::onJudge,
+                    judgeResult = uiState.judgeResult,
+                    isLoading = uiState.isLoading,
+                    questionText = uiState.questionText,
+                    onQuestionChanged = viewModel::onQuestionChanged,
+                    answerText = uiState.answerText,
+                    isAnswerLoading = uiState.isAnswerLoading,
+                    onAskQuestion = viewModel::onAskQuestion
+                )
+            }
         } else {
+            // Portrait: side-by-side
             Row(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                // Left panel: AI explains code
                 AIExplanationPanel(
                     modifier = Modifier.weight(1f),
                     codeLines = uiState.codeLines,
@@ -68,11 +112,7 @@ fun SplitScreenTutorScreen(
                     onPrevious = viewModel::previousLine,
                     onNext = viewModel::nextLine
                 )
-
-                // Divider
                 VerticalDivider()
-
-                // Right panel: User writes code
                 CodeEditorPanel(
                     modifier = Modifier.weight(1f),
                     code = uiState.userCode,
@@ -103,6 +143,28 @@ fun AIExplanationPanel(
 ) {
     val scrollState = rememberScrollState()
     val lineCount = codeLines.size
+    var showAllLines by remember { mutableStateOf(false) }
+    
+    // Typing animation: retype code character by character
+    var displayedCode by remember { mutableStateOf("") }
+    val targetCode = currentLine?.code ?: ""
+    
+    LaunchedEffect(targetCode) {
+        displayedCode = ""
+        if (targetCode.isNotEmpty()) {
+            for (i in targetCode.indices) {
+                delay(30) // typing speed
+                displayedCode = targetCode.substring(0, i + 1)
+            }
+        }
+    }
+    
+    // Auto-repeat: pause then retype
+    var repeatTrigger by remember { mutableStateOf(0) }
+    LaunchedEffect(repeatTrigger, targetCode) {
+        delay(3000) // pause after typing completes
+        repeatTrigger++
+    }
 
     Column(modifier = modifier.fillMaxHeight()) {
         // Panel header
@@ -111,13 +173,25 @@ fun AIExplanationPanel(
             color = MaterialTheme.colorScheme.primaryContainer,
             tonalElevation = 2.dp
         ) {
-            Column(modifier = Modifier.padding(12.dp)) {
-                Text(
-                    text = "📖 AI Explanation",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(4.dp))
+            Column(modifier = Modifier.padding(8.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "📖 AI Tutor",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f)
+                    )
+                    IconButton(
+                        onClick = { showAllLines = true },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(Icons.Default.List, contentDescription = "Show all lines", modifier = Modifier.size(18.dp))
+                    }
+                }
                 Text(
                     text = "Line ${currentLine?.lineNumber ?: "?"} of $lineCount",
                     style = MaterialTheme.typography.bodySmall,
@@ -130,25 +204,16 @@ fun AIExplanationPanel(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 4.dp),
+                .padding(horizontal = 4.dp, vertical = 2.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(
-                onClick = onPrevious,
-                enabled = currentLineIndex > 0
-            ) {
-                Icon(Icons.Default.ChevronLeft, contentDescription = "Previous line")
+            IconButton(onClick = onPrevious, enabled = currentLineIndex > 0, modifier = Modifier.size(36.dp)) {
+                Icon(Icons.Default.ChevronLeft, contentDescription = "Previous", modifier = Modifier.size(20.dp))
             }
-            Text(
-                text = "${currentLineIndex + 1} / $lineCount",
-                style = MaterialTheme.typography.labelMedium
-            )
-            IconButton(
-                onClick = onNext,
-                enabled = currentLineIndex < lineCount - 1
-            ) {
-                Icon(Icons.Default.ChevronRight, contentDescription = "Next line")
+            Text(text = "${currentLineIndex + 1}/$lineCount", style = MaterialTheme.typography.labelSmall)
+            IconButton(onClick = onNext, enabled = currentLineIndex < lineCount - 1, modifier = Modifier.size(36.dp)) {
+                Icon(Icons.Default.ChevronRight, contentDescription = "Next", modifier = Modifier.size(20.dp))
             }
         }
 
@@ -159,98 +224,133 @@ fun AIExplanationPanel(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(scrollState)
-                .padding(12.dp)
+                .padding(8.dp)
         ) {
-            // Target code display
+            // Animated target code
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
             ) {
-                Column(modifier = Modifier.padding(12.dp)) {
+                Column(modifier = Modifier.padding(10.dp)) {
                     Text(
-                        text = "💻 Target Code",
-                        style = MaterialTheme.typography.labelMedium,
+                        text = "💻 Code",
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
                     Surface(
-                        modifier = Modifier.fillMaxWidth(),
                         color = Color(0xFF1E1E1E),
-                        shape = MaterialTheme.shapes.small
+                        shape = MaterialTheme.shapes.small,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = currentLine?.code ?: "// Select a line",
-                            modifier = Modifier.padding(12.dp),
+                            text = displayedCode.ifEmpty { "// " },
+                            modifier = Modifier.padding(10.dp),
                             fontFamily = FontFamily.Monospace,
-                            fontSize = 13.sp,
+                            fontSize = 12.sp,
                             color = Color(0xFFD4D4D4),
-                            lineHeight = 20.sp
+                            lineHeight = 18.sp
+                        )
+                    }
+                    // Blinking cursor
+                    if (displayedCode.length < targetCode.length) {
+                        Text(
+                            text = "▊ typing...",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Explanation
             Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
-                )
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
             ) {
-                Column(modifier = Modifier.padding(12.dp)) {
+                Column(modifier = Modifier.padding(10.dp)) {
                     Text(
-                        text = "🧠 Explanation",
-                        style = MaterialTheme.typography.labelMedium,
+                        text = "🧠 What this does",
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = explanation.ifBlank { "Select a line to see the explanation." },
-                        style = MaterialTheme.typography.bodyMedium,
-                        lineHeight = 22.sp
+                        text = explanation.ifBlank { "Navigate to a line to see explanation." },
+                        style = MaterialTheme.typography.bodySmall,
+                        lineHeight = 18.sp
                     )
                 }
             }
 
             // Hints
-            val currentStub = codeLines.getOrNull(currentLineIndex)
-            if (currentStub != null && currentStub.hints.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(12.dp))
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
-                    )
-                ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text(
-                            text = "💡 Hints",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onTertiaryContainer,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        currentStub.hints.forEach { hint ->
-                            Row(modifier = Modifier.padding(vertical = 2.dp)) {
-                                Text("• ", fontFamily = FontFamily.Monospace)
-                                Text(
-                                    text = hint,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    lineHeight = 20.sp
-                                )
+            val stub = codeLines.getOrNull(currentLineIndex)
+            if (stub != null && stub.hints.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)) {
+                    Column(modifier = Modifier.padding(10.dp)) {
+                        Text("💡 Hints", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                        stub.hints.forEach { hint ->
+                            Text("• $hint", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 2.dp))
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+    
+    // All-lines dialog
+    if (showAllLines) {
+        Dialog(onDismissRequest = { showAllLines = false }) {
+            Surface(
+                shape = MaterialTheme.shapes.large,
+                tonalElevation = 6.dp,
+                modifier = Modifier.fillMaxWidth(0.95f).fillMaxHeight(0.85f)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("📜 All Code Lines", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                        IconButton(onClick = { showAllLines = false }) {
+                            Icon(Icons.Default.Close, "Close")
+                        }
+                    }
+                    HorizontalDivider()
+                    Spacer(Modifier.height(8.dp))
+                    LazyColumn {
+                        itemsIndexed(codeLines) { index, line ->
+                            val isCurrent = index == currentLineIndex
+                            Surface(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                                color = if (isCurrent) MaterialTheme.colorScheme.primaryContainer
+                                        else MaterialTheme.colorScheme.surface,
+                                shape = MaterialTheme.shapes.small,
+                                onClick = { showAllLines = false; /* navigate to this line */ }
+                            ) {
+                                Row(modifier = Modifier.padding(8.dp)) {
+                                    Text(
+                                        text = "${line.lineNumber}",
+                                        fontFamily = FontFamily.Monospace,
+                                        fontSize = 11.sp,
+                                        color = if (isCurrent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.width(28.dp)
+                                    )
+                                    Text(
+                                        text = line.code,
+                                        fontFamily = FontFamily.Monospace,
+                                        fontSize = 11.sp,
+                                        color = if (isCurrent) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -269,212 +369,70 @@ fun CodeEditorPanel(
     isAnswerLoading: Boolean,
     onAskQuestion: (String) -> Unit
 ) {
+    var localQuestion by remember { mutableStateOf("") }
+    
     Column(modifier = modifier.fillMaxHeight()) {
-        // Panel header
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.secondaryContainer,
-            tonalElevation = 2.dp
-        ) {
-            Column(modifier = Modifier.padding(12.dp)) {
-                Text(
-                    text = "✏️ Your Code",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Write your implementation below",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-            }
+        // Code editor header
+        Surface(color = MaterialTheme.colorScheme.tertiaryContainer, tonalElevation = 2.dp) {
+            Text("✏️ Your Code", modifier = Modifier.padding(8.dp), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
         }
-
-        // Code editor area
-        Column(
-            modifier = Modifier
-                .weight(0.45f)
-                .padding(8.dp)
+        
+        // Editor area
+        OutlinedTextField(
+            value = code,
+            onValueChange = onCodeChange,
+            modifier = Modifier.fillMaxWidth().weight(0.5f).padding(8.dp),
+            textStyle = androidx.compose.ui.text.TextStyle(fontFamily = FontFamily.Monospace, fontSize = 13.sp, lineHeight = 20.sp, color = Color(0xFFD4D4D4)),
+            colors = OutlinedTextFieldDefaults.colors(unfocusedContainerColor = Color(0xFF1E1E1E), focusedContainerColor = Color(0xFF1E1E1E))
+        )
+        
+        // Judge button + results
+        Button(
+            onClick = onJudge,
+            enabled = !isLoading,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
         ) {
-            OutlinedTextField(
-                value = code,
-                onValueChange = onCodeChange,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                textStyle = MaterialTheme.typography.bodyMedium.copy(
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 13.sp,
-                    lineHeight = 20.sp
-                ),
-                placeholder = {
-                    Text(
-                        "Write your code here...",
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 13.sp
-                    )
-                },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFF1E1E1E),
-                    unfocusedContainerColor = Color(0xFF1E1E1E),
-                    focusedTextColor = Color(0xFFD4D4D4),
-                    unfocusedTextColor = Color(0xFFD4D4D4),
-                    cursorColor = Color(0xFF569CD6)
-                )
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Judge button
-            Button(
-                onClick = onJudge,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !isLoading && code.isNotBlank()
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(16.dp),
-                        strokeWidth = 2.dp
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-                Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("Judge")
-            }
+            if (isLoading) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onPrimary)
+            else Text("🔍 Judge My Code")
         }
-
-        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-
-        // Judge results
-        Column(
-            modifier = Modifier
-                .weight(0.3f)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 8.dp)
-        ) {
-            Text(
-                text = "📊 Results",
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
-
-            if (judgeResult != null) {
+        
+        // Judge result
+        AnimatedVisibility(visible = judgeResult != null) {
+            judgeResult?.let { result ->
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (judgeResult.passed)
-                            MaterialTheme.colorScheme.primaryContainer
-                        else
-                            MaterialTheme.colorScheme.errorContainer
-                    )
+                    modifier = Modifier.fillMaxWidth().padding(8.dp),
+                    colors = CardDefaults.cardColors(containerColor = if (result.passed) Color(0xFF1B5E20) else Color(0xFFB71C1C))
                 ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                if (judgeResult.passed) Icons.Default.CheckCircle
-                                else Icons.Default.Error,
-                                contentDescription = null,
-                                tint = if (judgeResult.passed)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    MaterialTheme.colorScheme.error
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Score: ${(judgeResult.score * 100).toInt()}%",
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = judgeResult.feedback,
-                            style = MaterialTheme.typography.bodySmall,
-                            lineHeight = 18.sp
-                        )
-                        if (judgeResult.suggestions.isNotEmpty()) {
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "Suggestions:",
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold
-                            )
-                            judgeResult.suggestions.forEach { suggestion ->
-                                Text(
-                                    text = "• $suggestion",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    modifier = Modifier.padding(start = 8.dp, top = 2.dp)
-                                )
-                            }
-                        }
+                    Column(Modifier.padding(8.dp)) {
+                        Text("Score: ${(result.score * 100).toInt()}%  ${if (result.passed) "✅ Pass" else "❌ Needs work"}", color = Color.White, style = MaterialTheme.typography.labelMedium)
+                        Text(result.feedback, color = Color.White, style = MaterialTheme.typography.bodySmall)
+                        result.suggestions.forEach { Text("→ $it", color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.bodySmall) }
                     }
                 }
-            } else {
-                Text(
-                    text = "Press \"Judge\" to evaluate your code.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
             }
         }
-
-        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-
+        
+        HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp))
+        
         // Q&A section
-        Column(
-            modifier = Modifier
-                .weight(0.25f)
-                .padding(horizontal = 8.dp, vertical = 4.dp)
-        ) {
-            Text(
-                text = "🤔 Ask a Question",
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+        Column(modifier = Modifier.weight(0.3f).padding(8.dp)) {
+            Text("❓ Ask a Question", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 OutlinedTextField(
-                    value = questionText,
-                    onValueChange = onQuestionChanged,
+                    value = localQuestion,
+                    onValueChange = { localQuestion = it },
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text("Ask about this code...", style = MaterialTheme.typography.bodySmall) },
+                    placeholder = { Text("Why does this line...") },
                     singleLine = true,
                     textStyle = MaterialTheme.typography.bodySmall
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                IconButton(
-                    onClick = { onAskQuestion(questionText) },
-                    enabled = questionText.isNotBlank() && !isAnswerLoading
-                ) {
-                    if (isAnswerLoading) {
-                        CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                    } else {
-                        Icon(Icons.Default.Send, contentDescription = "Ask")
-                    }
+                IconButton(onClick = { onAskQuestion(localQuestion); localQuestion = "" }, enabled = localQuestion.isNotBlank()) {
+                    Icon(Icons.Default.Send, "Ask", tint = if (localQuestion.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-
-            if (answerText.isNotBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = MaterialTheme.shapes.small
-                ) {
-                    Text(
-                        text = answerText,
-                        modifier = Modifier.padding(8.dp),
-                        style = MaterialTheme.typography.bodySmall,
-                        lineHeight = 18.sp
-                    )
-                }
+            if (isAnswerLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
+            if (answerText.isNotEmpty()) {
+                Text(answerText, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp))
             }
         }
     }
