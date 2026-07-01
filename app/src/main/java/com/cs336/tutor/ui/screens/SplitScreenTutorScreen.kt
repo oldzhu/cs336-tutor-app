@@ -45,7 +45,7 @@ fun SplitScreenTutorScreen(
             )
         }
     ) { padding ->
-        if (uiState.isLoading && uiState.codeLines.isEmpty()) {
+        if (uiState.isLoading || uiState.codeLines.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 contentAlignment = Alignment.Center
