@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class SettingsUiState(
-    val isRemote: Boolean = true
+    val isRemote: Boolean = true,
     val isChinese: Boolean = false,
     val apiEndpoint: String = "https://api.deepseek.com/v1",
     val apiKey: String = "",
@@ -26,6 +26,10 @@ class SettingsViewModel @Inject constructor() : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
+
+    fun onLanguageChanged(isChinese: Boolean) {
+        _uiState.value = _uiState.value.copy(isChinese = isChinese, isSaved = false)
+    }
 
     fun onProviderChanged(isRemote: Boolean) {
         _uiState.value = _uiState.value.copy(isRemote = isRemote, isSaved = false)
@@ -44,18 +48,14 @@ class SettingsViewModel @Inject constructor() : ViewModel() {
     }
 
     fun onLocalEndpointChanged(endpoint: String) {
-n    fun onLanguageChanged(isChinese: Boolean) { _uiState.value = _uiState.value.copy(isChinese = isChinese, isSaved = false) }
         _uiState.value = _uiState.value.copy(localEndpoint = endpoint, isSaved = false)
     }
 
     fun onSave() {
         _uiState.value = _uiState.value.copy(isSaving = true)
         viewModelScope.launch {
-            // TODO: Persist to DataStore Preferences
-            // For now, just simulate save
             delay(500)
             _uiState.value = _uiState.value.copy(isSaving = false, isSaved = true)
-            // Hide "saved" after 2 seconds
             delay(2000)
             _uiState.value = _uiState.value.copy(isSaved = false)
         }
