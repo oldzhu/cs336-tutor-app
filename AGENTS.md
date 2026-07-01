@@ -50,8 +50,29 @@ Current session tracked in `docs/log/opencode-session.txt`.
 
 **Do NOT move to next feature until manual test is confirmed.**
 
-## Language & Docs
-- UI strings: English (extractable to strings.xml)
-- All docs: Bilingual CN/EN, cross-linked
-- Commits: English
-- Code comments: English
+## RULE 4: Bilingual Documentation (CN/EN)
+
+**Every decision, action, and change MUST be documented in both Chinese and English:**
+
+### Document Types
+| Doc | EN Path | CN Path |
+|---|---|---|
+| Spec | `docs/spec/en/` | `docs/spec/zh/` |
+| Plan | `docs/plan/en/` | `docs/plan/zh/` |
+| Dev Log | `docs/log/en/` | `docs/log/zh/` |
+
+### Rules
+- Every doc in one language MUST link to its counterpart in the other language
+- `[English](path/to/en.md)` / `[中文版](path/to/zh.md)` headers at top of each doc
+- Update BOTH when making changes
+- New features → update dev log in both languages
+- README.md must be bilingual (combined or paired)
+
+### Dev Log Format
+```markdown
+## YYYY-MM-DD — Change Title
+- Decision/action description
+- Files changed
+- Test results
+- Next steps
+```
