@@ -108,6 +108,9 @@ fun AIExplanationPanel(
     val lineCount = codeLines.size
     var showAllLines by remember { mutableStateOf(false) }
     
+    // Auto-repeat: type → pause → clear → retype loop
+    var repeatTrigger by remember { mutableStateOf(0) }
+
     // Typing animation: retype code character by character at human speed
     var displayedCode by remember { mutableStateOf("") }
     val targetCode = currentLine?.code ?: ""
@@ -122,8 +125,6 @@ fun AIExplanationPanel(
         }
     }
     
-    // Auto-repeat: type → pause → clear → retype loop
-    var repeatTrigger by remember { mutableStateOf(0) }
     LaunchedEffect(repeatTrigger, targetCode) {
         if (targetCode.isNotEmpty()) {
             delay(targetCode.length * 80L + 2000) // typing time + 2s pause
