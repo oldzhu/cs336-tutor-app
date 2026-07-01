@@ -14,14 +14,21 @@
 ### 已完成的操作
 - 创建 Git 仓库及初始文档结构
 - 起草项目规格（中/英文）
-- 起草包含 5 个阶段的开发计划（基础搭建 → MVP → 完整 Transformer → 高级功能 → 打磨发布）
+- 起草包含 5 个阶段的开发计划
 - 在 `docs/` 下创建双语文档框架
+- 创建完整 Android 项目脚手架（Compose + Hilt + Room + Chaquopy）
+- 生成 Gradle wrapper（8.11.1）— 修复 KAPT 锁问题
+- 安装 Android SDK（platform 35、build-tools 35、platform-tools）
+- **首次 APK 构建：成功** — `app-debug.apk`（43MB）
+- 添加 BPE Tokenizer 参考 Python 实现
+- 添加启动图标资源
+- 设置 GitHub 远程仓库（`origin → git@github.com:oldzhu/cs336-tutor-app.git`）
+- 生成 SSH 密钥用于 GitHub 认证
 
 ### 依赖网络（待办）
-- [ ] Android SDK 安装
-- [ ] OpenCode 搭建 Android 项目脚手架
-- [ ] WSL 中 npm 安装 Chaquopy 依赖
-- [ ] 在模拟器上验证 APK 构建
+- [x] Android SDK 安装
+- [ ] GitHub 推送（手动 — SSH 代理太慢）
+- [ ] WSL 环境正在设置（apt update 通过代理较慢）
 
 ### 下一步
 1. 完成离线项目脚手架（Gradle 文件、源代码模板）
