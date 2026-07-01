@@ -18,11 +18,11 @@ import java.util.Locale
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val prefs = getSharedPreferences("app_settings", Context.MODE_PRIVATE)
-        val lang = prefs.getString("language", "en") ?: "en"
+        val lang = applicationContext
+            .getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+            .getString("language", "en") ?: "en"
         val locale = if (lang == "zh") Locale.SIMPLIFIED_CHINESE else Locale.ENGLISH
-        val config = Configuration(resources.configuration)
-        config.setLocale(locale)
+        val config = Configuration().apply { setLocale(locale) }
         applyOverrideConfiguration(config)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
