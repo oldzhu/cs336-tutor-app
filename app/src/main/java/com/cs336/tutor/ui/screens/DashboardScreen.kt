@@ -1,14 +1,18 @@
 package com.cs336.tutor.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cs336.tutor.domain.model.JudgeResult
 import com.cs336.tutor.ui.components.ComponentCard
-import com.cs336.tutor.ui.screens.DashboardViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

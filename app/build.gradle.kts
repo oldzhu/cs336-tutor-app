@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.dagger.hilt.android")
     id("com.chaquo.python")
     kotlin("kapt")
@@ -27,12 +28,13 @@ android {
             abiFilters += listOf("arm64-v8a", "x86_64")
         }
 
-        python {
-            buildPython("/usr/bin/python3")
-            pip {
-                install("numpy")
-            }
-        }
+        // Chaquopy Python config — uncomment when Chaquopy plugin is resolved
+        // python {
+        //     buildPython("/usr/bin/python3")
+        //     pip {
+        //         install("numpy")
+        //     }
+        // }
     }
 
     buildTypes {
@@ -59,10 +61,6 @@ android {
 
     buildFeatures {
         compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14"
     }
 
     packaging {

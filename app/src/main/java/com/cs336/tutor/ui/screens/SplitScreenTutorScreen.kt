@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cs336.tutor.domain.model.JudgeResult
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,10 +83,4 @@ data class CodeLine(
     val lineNumber: Int,
     val code: String,
     val explanation: String
-)
-
-data class JudgeResult(
-    val score: Float,
-    val feedback: String,
-    val diff: String
 )

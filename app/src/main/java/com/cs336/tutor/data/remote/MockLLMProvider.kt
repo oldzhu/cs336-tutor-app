@@ -1,6 +1,8 @@
 package com.cs336.tutor.data.remote
 
+import com.cs336.tutor.domain.model.ComponentSpec
 import com.cs336.tutor.domain.model.JudgeResult
+import com.cs336.tutor.domain.model.TutorComponent
 import com.cs336.tutor.domain.provider.ExplanationChunk
 import com.cs336.tutor.domain.provider.LLMProvider
 import kotlinx.coroutines.flow.Flow
