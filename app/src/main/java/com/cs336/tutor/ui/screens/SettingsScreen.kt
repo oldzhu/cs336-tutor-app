@@ -158,7 +158,10 @@ fun SettingsScreen(
             }
 
             Button(
-                onClick = { viewModel.onSave(); applyLanguage(context, uiState.isChinese) },
+                onClick = {
+                    viewModel.onSave()
+                    (context as? android.app.Activity)?.recreate()
+                },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !uiState.isSaving
             ) {
@@ -173,12 +176,4 @@ fun SettingsScreen(
             )
         }
     }
-}
-
-private fun applyLanguage(context: Context, isChinese: Boolean) {
-    val locale = if (isChinese) Locale.SIMPLIFIED_CHINESE else Locale.ENGLISH
-    Locale.setDefault(locale)
-    val config = Configuration(context.resources.configuration)
-    config.setLocale(locale)
-    context.resources.updateConfiguration(config, context.resources.displayMetrics)
 }

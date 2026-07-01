@@ -112,7 +112,7 @@ fun AIExplanationPanel(
     var displayedCode by remember { mutableStateOf("") }
     val targetCode = currentLine?.code ?: ""
     
-    LaunchedEffect(targetCode) {
+    LaunchedEffect(targetCode, repeatTrigger) {
         displayedCode = ""
         if (targetCode.isNotEmpty()) {
             for (i in targetCode.indices) {

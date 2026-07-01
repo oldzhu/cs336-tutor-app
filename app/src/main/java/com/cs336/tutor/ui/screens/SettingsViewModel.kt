@@ -1,8 +1,10 @@
 package com.cs336.tutor.ui.screens
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,10 +24,18 @@ data class SettingsUiState(
 )
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor() : ViewModel() {
+class SettingsViewModel @Inject constructor(
+    @ApplicationContext private val context: Context
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
+
+    init {
+        val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        val savedLang = prefs.getString("language", "en") ?: "en"
+        _uiState.value = _uiState.value.copy(isChinese = savedLang == "zh")
+    }
 
     fun onLanguageChanged(isChinese: Boolean) {
         _uiState.value = _uiState.value.copy(isChinese = isChinese, isSaved = false)
@@ -54,6 +64,8 @@ class SettingsViewModel @Inject constructor() : ViewModel() {
     fun onSave() {
         _uiState.value = _uiState.value.copy(isSaving = true)
         viewModelScope.launch {
+            val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+            prefs.edit().putString("language", if (_uiState.value.isChinese) "zh" else "en").apply()
             delay(500)
             _uiState.value = _uiState.value.copy(isSaving = false, isSaved = true)
             delay(2000)
