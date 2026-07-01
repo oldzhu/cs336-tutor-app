@@ -17,14 +17,15 @@ import java.util.Locale
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    override fun attachBaseContext(newBase: Context) {
-        val prefs = newBase.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
-        val lang = prefs.getString("language", "en") ?: "en"
-        val locale = if (lang == "zh") Locale.SIMPLIFIED_CHINESE else Locale.ENGLISH
-        val config = Configuration(newBase.resources.configuration).apply { setLocale(locale) }
-        super.attachBaseContext(newBase.createConfigurationContext(config))
-    }
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Must happen before super.onCreate() to avoid getResources() conflict
+        val prefs = applicationContext.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        val lang = prefs.getString("language", "en") ?: "en"
+        if (lang == "zh") {
+            applyOverrideConfiguration(Configuration().apply {
+                setLocale(Locale.SIMPLIFIED_CHINESE)
+            })
+        }
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
