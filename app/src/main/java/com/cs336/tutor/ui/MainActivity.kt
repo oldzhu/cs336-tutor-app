@@ -17,18 +17,13 @@ import java.util.Locale
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    override fun attachBaseContext(newBase: Context) {
-        val prefs = newBase.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        val prefs = getSharedPreferences("app_settings", Context.MODE_PRIVATE)
         val lang = prefs.getString("language", "en") ?: "en"
         val locale = if (lang == "zh") Locale.SIMPLIFIED_CHINESE else Locale.ENGLISH
-        val config = Configuration(newBase.resources.configuration).apply {
-            setLocale(locale)
-        }
-        @Suppress("DEPRECATION")
-        super.attachBaseContext(newBase.createConfigurationContext(config))
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
+        val config = Configuration(resources.configuration)
+        config.setLocale(locale)
+        applyOverrideConfiguration(config)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
@@ -41,16 +36,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    override fun getResources(): android.content.res.Resources {
-        val res = super.getResources()
-        val prefs = getSharedPreferences("app_settings", Context.MODE_PRIVATE)
-        val lang = prefs.getString("language", "en") ?: "en"
-        val locale = if (lang == "zh") Locale.SIMPLIFIED_CHINESE else Locale.ENGLISH
-        val config = Configuration(res.configuration).apply { setLocale(locale) }
-        @Suppress("DEPRECATION")
-        res.updateConfiguration(config, res.displayMetrics)
-        return res
     }
 }
