@@ -34,3 +34,8 @@
 1. Complete offline project scaffolding (Gradle files, source stubs)
 2. Initial Git commit
 3. Wait for user signal to resume network-dependent tasks
+
+### Rules Established
+- **TDD** — Test-Driven Development mandatory for all features
+- **OpenCode Continuity** — Always resume last session
+- Project rules saved in  (auto-injected per session)
