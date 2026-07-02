@@ -20,6 +20,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import java.util.Locale
 
@@ -36,10 +37,10 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text(stringResource(R.string.settings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 }
             )
@@ -59,12 +60,12 @@ fun SettingsScreen(
                 FilterChip(
                     selected = !uiState.isChinese,
                     onClick = { viewModel.onLanguageChanged(false) },
-                    label = { Text("English") }
+                    label = { Text(stringResource(R.string.language_en)) }
                 )
                 FilterChip(
                     selected = uiState.isChinese,
                     onClick = { viewModel.onLanguageChanged(true) },
-                    label = { Text("中文") }
+                    label = { Text(stringResource(R.string.language_zh)) }
                 )
             }
 
@@ -79,12 +80,12 @@ fun SettingsScreen(
                 FilterChip(
                     selected = uiState.isRemote,
                     onClick = { viewModel.onProviderChanged(true) },
-                    label = { Text("Remote") }
+                    label = { Text(stringResource(R.string.remote_provider)) }
                 )
                 FilterChip(
                     selected = !uiState.isRemote,
                     onClick = { viewModel.onProviderChanged(false) },
-                    label = { Text("Local") }
+                    label = { Text(stringResource(R.string.local_provider)) }
                 )
             }
 
@@ -93,13 +94,13 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             if (uiState.isRemote) {
-                Text("Remote Configuration", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+                Text(stringResource(R.string.api_endpoint_label), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.height(12.dp))
 
                 OutlinedTextField(
                     value = uiState.apiEndpoint,
                     onValueChange = viewModel::onApiEndpointChanged,
-                    label = { Text("API Endpoint URL") },
+                    label = { Text(stringResource(R.string.api_endpoint_label)) },
                     placeholder = { Text("https://api.deepseek.com/v1") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
@@ -109,7 +110,7 @@ fun SettingsScreen(
                 OutlinedTextField(
                     value = uiState.apiKey,
                     onValueChange = viewModel::onApiKeyChanged,
-                    label = { Text("API Key") },
+                    label = { Text(stringResource(R.string.api_key_label)) },
                     placeholder = { Text("sk-...") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
@@ -125,19 +126,19 @@ fun SettingsScreen(
                 OutlinedTextField(
                     value = uiState.modelName,
                     onValueChange = viewModel::onModelNameChanged,
-                    label = { Text("Model") },
+                    label = { Text(stringResource(R.string.model_label)) },
                     placeholder = { Text("deepseek-v4-flash") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
                 )
             } else {
-                Text("Local Configuration", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+                Text(stringResource(R.string.local_endpoint_label), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.height(12.dp))
                 OutlinedTextField(
                     value = uiState.localEndpoint,
                     onValueChange = viewModel::onLocalEndpointChanged,
-                    label = { Text("Local Endpoint URL") },
+                    label = { Text(stringResource(R.string.local_endpoint_label)) },
                     placeholder = { Text("http://192.168.1.100:11434") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
@@ -152,7 +153,7 @@ fun SettingsScreen(
 
             if (uiState.isSaved) {
                 Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
-                    Text("✅ Settings saved", modifier = Modifier.padding(16.dp), color = MaterialTheme.colorScheme.onPrimaryContainer)
+                    Text(stringResource(R.string.settings_saved), modifier = Modifier.padding(16.dp), color = MaterialTheme.colorScheme.onPrimaryContainer)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
             }
@@ -161,7 +162,12 @@ fun SettingsScreen(
                 onClick = {
                     viewModel.saveLanguage()
                     viewModel.onSave()
-                    (context as android.app.Activity).recreate()
+                    // Unwrap ContextWrapper to get the Activity
+                    var act = context
+                    while (act is android.content.ContextWrapper && act !is android.app.Activity) {
+                        act = act.baseContext
+                    }
+                    (act as? android.app.Activity)?.recreate()
                 },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !uiState.isSaving
