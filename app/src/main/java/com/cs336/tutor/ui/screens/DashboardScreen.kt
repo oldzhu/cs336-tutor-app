@@ -10,6 +10,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.cs336.tutor.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cs336.tutor.domain.model.JudgeResult
 import com.cs336.tutor.ui.components.ComponentCard
@@ -26,10 +28,10 @@ fun DashboardScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("CS336 Tutor") },
+                title = { Text(stringResource(R.string.app_name)) },
                 actions = {
                     IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                        Icon(Icons.Default.Settings, contentDescription = null)
                     }
                 }
             )

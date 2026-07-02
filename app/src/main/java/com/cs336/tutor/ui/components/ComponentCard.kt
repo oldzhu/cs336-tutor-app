@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
+import com.cs336.tutor.R
 import com.cs336.tutor.domain.model.TutorComponent
 
 @Composable

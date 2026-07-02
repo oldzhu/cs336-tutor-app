@@ -20,6 +20,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.cs336.tutor.R
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cs336.tutor.domain.model.CodeLineStub
@@ -45,7 +47,7 @@ fun SplitScreenTutorScreen(
                 title = { Text(uiState.componentName) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 }
             )
@@ -177,11 +179,11 @@ fun AIExplanationPanel(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onPrevious, enabled = currentLineIndex > 0, modifier = Modifier.size(36.dp)) {
-                Icon(Icons.Default.ChevronLeft, contentDescription = "Previous", modifier = Modifier.size(20.dp))
+                Icon(Icons.Default.ChevronLeft, contentDescription = null, modifier = Modifier.size(20.dp))
             }
             Text(text = "${currentLineIndex + 1}/$lineCount", style = MaterialTheme.typography.labelSmall)
             IconButton(onClick = onNext, enabled = currentLineIndex < lineCount - 1, modifier = Modifier.size(36.dp)) {
-                Icon(Icons.Default.ChevronRight, contentDescription = "Next", modifier = Modifier.size(20.dp))
+                Icon(Icons.Default.ChevronRight, contentDescription = null, modifier = Modifier.size(20.dp))
             }
         }
 
@@ -259,7 +261,7 @@ fun AIExplanationPanel(
                 Spacer(modifier = Modifier.height(8.dp))
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)) {
                     Column(modifier = Modifier.padding(10.dp)) {
-                        Text("💡 Hints", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.hints_section), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                         stub.hints.forEach { hint ->
                             Text("• $hint", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 2.dp))
                         }
@@ -280,7 +282,7 @@ fun AIExplanationPanel(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("📜 All Code Lines", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                        Text(stringResource(R.string.all_lines_title), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                         IconButton(onClick = { showAllLines = false }) {
                             Icon(Icons.Default.Close, "Close")
                         }
@@ -346,7 +348,7 @@ fun CodeEditorPanel(
     ) {
         // Code editor header
         Surface(color = MaterialTheme.colorScheme.tertiaryContainer, tonalElevation = 2.dp) {
-            Text("✏️ Your Code", modifier = Modifier.padding(8.dp), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.your_code_title), modifier = Modifier.padding(8.dp), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
         }
         
         // Editor area
@@ -376,7 +378,7 @@ fun CodeEditorPanel(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
         ) {
             if (isLoading) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onPrimary)
-            else Text("🔍 Judge My Code")
+            else Text(stringResource(R.string.judge_button))
         }
         
         // Judge result
@@ -405,13 +407,13 @@ fun CodeEditorPanel(
         
         // Q&A section
         Column(modifier = Modifier.padding(8.dp)) {
-            Text("❓ Ask a Question", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.q_and_a_title), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 OutlinedTextField(
                     value = localQuestion,
                     onValueChange = { localQuestion = it },
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text("Why does this line...") },
+                    placeholder = { Text(stringResource(R.string.q_and_a_placeholder)) },
                     singleLine = true,
                     textStyle = MaterialTheme.typography.bodySmall
                 )
