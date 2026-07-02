@@ -4,16 +4,63 @@
     <string name="dashboard_title">Learn Language Modeling from Scratch</string>
     <string name="dashboard_subtitle">Choose a component to learn:</string>
     <string name="settings_title">Settings</string>
+    
+    <!-- Settings -->
     <string name="llm_provider_label">LLM Provider</string>
     <string name="api_key_label">API Key</string>
     <string name="model_label">Model</string>
-    <string name="language_label">Language</string>
+    <string name="language_label">Language / 语言</string>
+    <string name="language_en">English</string>
+    <string name="language_zh">中文</string>
+    <string name="remote_provider">Remote</string>
+    <string name="local_provider">Local</string>
+    <string name="api_endpoint_label">API Endpoint URL</string>
+    <string name="local_endpoint_label">Local Endpoint URL</string>
+    <string name="save_settings">Save Settings</string>
+    <string name="saving">Saving…</string>
+    <string name="settings_saved">✅ Settings saved</string>
+    <string name="settings_hint">After saving, the app uses the configured provider for all AI features.</string>
+    <string name="local_endpoint_hint">e.g. Ollama on LAN: http://YOUR_IP:11434</string>
+    
+    <!-- Tutor -->
     <string name="judge_button">Judge My Code</string>
     <string name="ask_button">Ask a Question</string>
     <string name="pause_button">Pause</string>
     <string name="resume_button">Resume</string>
     <string name="back">Back</string>
-    <string name="locked">Locked</string>
+    <string name="ai_tutor_title">📖 AI Tutor</string>
+    <string name="your_code_title">✏️ Your Code</string>
+    <string name="code_section">💻 Code</string>
+    <string name="explanation_section">🧠 What this does</string>
+    <string name="hints_section">💡 Hints</string>
+    <string name="all_lines_title">📜 All Code Lines</string>
+    <string name="q_and_a_title">❓ Ask a Question</string>
+    <string name="q_and_a_placeholder">Why does this line…</string>
+    <string name="typing_indicator">▊ typing…</string>
+    <string name="prev_line">Previous</string>
+    <string name="next_line">Next</string>
+    <string name="close">Close</string>
+    <string name="select_line_hint">Select a line to see the explanation.</string>
+    <string name="score_format">Score: %1$d%% %2$s</string>
+    <string name="pass_label">✅ Pass</string>
+    <string name="fail_label">❌ Needs work</string>
+    
+    <!-- Components -->
+    <string name="component_bpe">BPE Tokenizer</string>
+    <string name="component_bpe_desc">Byte-Pair Encoding — subword tokenization from scratch</string>
+    <string name="component_rmsnorm">RMSNorm</string>
+    <string name="component_rmsnorm_desc">Root Mean Square Layer Normalization</string>
+    <string name="component_rope">Rotary Position Embedding (RoPE)</string>
+    <string name="component_rope_desc">Relative position encoding for transformers</string>
+    <string name="component_attention">Multi-Head Self-Attention</string>
+    <string name="component_attention_desc">Causal scaled dot-product attention</string>
+    <string name="component_ffn">Position-wise FFN (SwiGLU)</string>
+    <string name="component_ffn_desc">Feed-forward network with SwiGLU activation</string>
+    <string name="component_transformer">Full Transformer Block</string>
+    <string name="component_transformer_desc">Assemble all components into a decoder-only block</string>
+    
+    <!-- Progress -->
+    <string name="locked">🔒 Locked</string>
     <string name="completed">Completed</string>
     <string name="progress">Progress</string>
 </resources>

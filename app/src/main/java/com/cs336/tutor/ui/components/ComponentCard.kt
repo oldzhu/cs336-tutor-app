@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import com.cs336.tutor.domain.model.TutorComponent
 
 @Composable
@@ -47,13 +48,13 @@ fun ComponentCard(
             if (component.isLocked) {
                 Icon(
                     Icons.Default.Lock,
-                    contentDescription = "Locked",
+                    contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             } else {
                 Icon(
                     Icons.Default.PlayArrow,
-                    contentDescription = "Start",
+                    contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
