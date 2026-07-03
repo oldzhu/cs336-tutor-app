@@ -26,7 +26,7 @@ Decoding: token IDs → lookup bytes → UTF-8 string""".trimIndent(),
             "Applied to ALL text before entering the model. Training text is tokenized to learn merge rules. Output feeds into Embedding layer.",
             "Without BPE: one token per unique word (impossibly large vocabulary), or character-level tokens (extremely long sequences, poor efficiency).",
             "Modern LLMs use tokenization to balance vocabulary size with sequence length. BPE handles rare words gracefully via subword decomposition.",
-            listOf(ref("BPE Paper (Sennrich et al.)","https://arxiv.org/abs/1508.07909"), ref("Karpathy's minBPE","https://github.com/karpathy/minbpe"))),
+            listOf(Reference("BPE Paper (Sennrich et al.)","https://arxiv.org/abs/1508.07909"), Reference("Karpathy's minBPE","https://github.com/karpathy/minbpe"))),
         zh = OverviewContent("BPE 分词", """
 Byte-Pair Encoding (Sennrich et al., 2016)
 1. 起始：每个字节(0-255)是一个 token
@@ -40,7 +40,7 @@ Byte-Pair Encoding (Sennrich et al., 2016)
             "应用于所有进入模型的文本。训练文本被分词以学习规则，输出进入 Embedding 层。",
             "没有 BPE：每个单词一个 token（词汇表过大），或用字符级（序列极长，效率差）。",
             "现代 LLM 用分词平衡词汇大小和序列长度。BPE 通过子词分解优雅处理罕见词。",
-            listOf(ref("BPE 论文 (Sennrich et al.)","https://arxiv.org/abs/1508.07909"), ref("Karpathy 的 minBPE","https://github.com/karpathy/minbpe")))
+            listOf(Reference("BPE 论文 (Sennrich et al.)","https://arxiv.org/abs/1508.07909"), Reference("Karpathy 的 minBPE","https://github.com/karpathy/minbpe")))
     )
 
     val embedding = Overview(
@@ -53,7 +53,7 @@ Output shape: (batch, seq_len) → (batch, seq_len, dim)""".trimIndent(),
             "Token IDs from BPE → Embedding lookup → dense vectors. Input to first Transformer block.",
             "Without embeddings, tokens remain meaningless integers. One-hot encoding is too sparse and high-dimensional.",
             "Similar words get similar vectors, enabling the model to generalize across vocabulary.",
-            listOf(ref("Word Embeddings Explained","https://arxiv.org/abs/1301.3781"))
+            listOf(Reference("Word Embeddings Explained","https://arxiv.org/abs/1301.3781"))
         ),
         zh = OverviewContent("Embedding 层", """
 Embedding: token_id → dim 维稠密向量
@@ -64,7 +64,7 @@ Embedding: token_id → dim 维稠密向量
             "BPE 的 token ID → Embedding → 稠密向量。作为第一个 Transformer 块的输入。",
             "没有 embedding：token 是无意义整数。独热编码过于稀疏且高维。",
             "相似词获得相似向量，使模型能跨词汇泛化。",
-            listOf(ref("词嵌入详解","https://arxiv.org/abs/1301.3781")))
+            listOf(Reference("词嵌入详解","https://arxiv.org/abs/1301.3781")))
     )
 
     val rmsnorm = Overview(
@@ -78,7 +78,7 @@ Key: no mean subtraction, no bias""".trimIndent(),
             "Applied before attention and FFN sub-layers (Pre-LN architecture).",
             "Without normalization: activations explode/vanish in deep networks. Training unstable, gradients diverge.",
             "Faster than LayerNorm (~15%), same quality. Used in LLaMA, Mistral, DeepSeek.",
-            listOf(ref("RMSNorm Paper","https://arxiv.org/abs/1910.07467"), ref("LLaMA Paper","https://arxiv.org/abs/2302.13971"))
+            listOf(Reference("RMSNorm Paper","https://arxiv.org/abs/1910.07467"), Reference("LLaMA Paper","https://arxiv.org/abs/2302.13971"))
         ),
         zh = OverviewContent("RMS 归一化", """
 RMSNorm(x) = x / RMS(x) * w
@@ -90,7 +90,7 @@ RMS(x) = sqrt(mean(x²)+ε)
             "在注意力和 FFN 子层前应用（Pre-LN 架构）。",
             "无归一化：深网络中激活值爆炸/消失。训练不稳定，梯度发散。",
             "比 LayerNorm 快约 15%，效果相同。用于 LLaMA、Mistral、DeepSeek。",
-            listOf(ref("RMSNorm 论文","https://arxiv.org/abs/1910.07467"), ref("LLaMA 论文","https://arxiv.org/abs/2302.13971")))
+            listOf(Reference("RMSNorm 论文","https://arxiv.org/abs/1910.07467"), Reference("LLaMA 论文","https://arxiv.org/abs/2302.13971")))
     )
 
     val rope = Overview(
@@ -104,7 +104,7 @@ Frequency: θ_i = 1/10000^(2i/d)""".trimIndent(),
             "Applied to Q and K before attention. Q·K naturally captures relative token distance.",
             "Without RoPE: model can't distinguish word order. Language understanding collapses.",
             "Encodes relative position directly into dot product. More efficient than learned embeddings for long sequences.",
-            listOf(ref("RoPE Paper","https://arxiv.org/abs/2104.09864"), ref("LLaMA RoPE Code","https://github.com/meta-llama/llama")))
+            listOf(Reference("RoPE Paper","https://arxiv.org/abs/2104.09864"), Reference("LLaMA RoPE Code","https://github.com/meta-llama/llama")))
         ),
         zh = OverviewContent("旋转位置编码 (RoPE)", """
 RoPE 按位置角度旋转 Q,K：
@@ -116,7 +116,7 @@ f(q,m)=q·e^(imθ), f(k,n)=k·e^(inθ)
             "在注意力计算前应用于 Q 和 K。Q·K 自然捕获相对距离。",
             "无 RoPE：模型无法区分词序。语言理解崩溃。",
             "将相对位置直接编码到点积。长序列比学习式嵌入更高效。",
-            listOf(ref("RoPE 论文","https://arxiv.org/abs/2104.09864"), ref("LLaMA RoPE 实现","https://github.com/meta-llama/llama")))
+            listOf(Reference("RoPE 论文","https://arxiv.org/abs/2104.09864"), Reference("LLaMA RoPE 实现","https://github.com/meta-llama/llama")))
     )
 
     val attention = Overview(
@@ -129,7 +129,7 @@ Causal mask: upper △ = -∞ (can't see future)""".trimIndent(),
             "Every Transformer block has one attention layer. Captures token relationships in parallel.",
             "Without attention: tokens only see themselves. Bag-of-words. No context, no grammar, no LLM.",
             "Enables parallel processing of all positions. Multi-head captures different relationship types.",
-            listOf(ref("Attention Paper","https://arxiv.org/abs/1706.03762"), ref("nanoGPT","https://github.com/karpathy/nanoGPT")))
+            listOf(Reference("Attention Paper","https://arxiv.org/abs/1706.03762"), Reference("nanoGPT","https://github.com/karpathy/nanoGPT")))
         ),
         zh = OverviewContent("多头自注意力", """
 Attention(Q,K,V) = softmax(QK^T/√d_k + mask)·V
@@ -140,7 +140,7 @@ Attention(Q,K,V) = softmax(QK^T/√d_k + mask)·V
             "每个 Transformer 块有一个注意力层。并行捕获 token 关系。",
             "无注意力：token 只看到自己。词袋模型。无上下文、无语法的 LLM。",
             "并行处理所有位置。多头捕获不同类型的关系。",
-            listOf(ref("Attention 论文","https://arxiv.org/abs/1706.03762"), ref("nanoGPT","https://github.com/karpathy/nanoGPT")))
+            listOf(Reference("Attention 论文","https://arxiv.org/abs/1706.03762"), Reference("nanoGPT","https://github.com/karpathy/nanoGPT")))
     )
 
     val ffn = Overview(
@@ -154,7 +154,7 @@ vs ReLU: SwiGLU has learned gating, not fixed threshold
             "Applied after attention in every block. Takes ~2/3 of total model parameters.",
             "Without FFN: only linear transforms. No complex patterns. Perplexity spikes dramatically.",
             "SwiGLU provides learned gating — the gate projection determines which features pass through.",
-            listOf(ref("GLU Variants (Shazeer)","https://arxiv.org/abs/2002.05202"), ref("PaLM: SwiGLU at Scale","https://arxiv.org/abs/2204.02311")))
+            listOf(Reference("GLU Variants (Shazeer)","https://arxiv.org/abs/2002.05202"), Reference("PaLM: SwiGLU at Scale","https://arxiv.org/abs/2204.02311")))
         ),
         zh = OverviewContent("SwiGLU 前馈网络", """
 SwiGLU(x)=(SiLU(x·W_g)⊙x·W_u)·W_d
@@ -166,7 +166,7 @@ vs ReLU：SwiGLU 有学习门控，非固定阈值
             "每个块中在注意力后应用。约占模型总参数 2/3。",
             "无 FFN：仅有线性变换。无法学习复杂模式。困惑度急剧上升。",
             "SwiGLU 提供学习门控——gate 投影决定哪些特征通过。",
-            listOf(ref("GLU 变体 (Shazeer)","https://arxiv.org/abs/2002.05202"), ref("PaLM: 大规模 SwiGLU","https://arxiv.org/abs/2204.02311")))
+            listOf(Reference("GLU 变体 (Shazeer)","https://arxiv.org/abs/2002.05202"), Reference("PaLM: 大规模 SwiGLU","https://arxiv.org/abs/2204.02311")))
     )
 
     val transformer = Overview(
@@ -180,7 +180,7 @@ LLaMA-7B: N=32,d=4096  LLaMA-70B: N=80,d=8192""".trimIndent(),
             "Blocks stacked sequentially. Output of block N = input of block N+1.",
             "Without it: no model. It IS the architecture. Block quality = model quality.",
             "Pre-LN + residuals enable stable training of very deep networks.",
-            listOf(ref("Attention is All You Need","https://arxiv.org/abs/1706.03762"), ref("DeepSeek-V3","https://arxiv.org/abs/2412.19437")))
+            listOf(Reference("Attention is All You Need","https://arxiv.org/abs/1706.03762"), Reference("DeepSeek-V3","https://arxiv.org/abs/2412.19437")))
         ),
         zh = OverviewContent("Transformer 块", """
 Pre-LN 解码器块：
@@ -192,7 +192,7 @@ LLaMA-7B: N=32,d=4096  LLaMA-70B: N=80,d=8192""".trimIndent(),
             "块顺序堆叠。块 N 的输出=块 N+1 的输入。",
             "没有它就没有模型。它本身就是架构。块质量=模型质量。",
             "Pre-LN+残差连接使极深网络可稳定训练。",
-            listOf(ref("Attention 论文","https://arxiv.org/abs/1706.03762"), ref("DeepSeek-V3","https://arxiv.org/abs/2412.19437")))
+            listOf(Reference("Attention 论文","https://arxiv.org/abs/1706.03762"), Reference("DeepSeek-V3","https://arxiv.org/abs/2412.19437")))
     )
 
     val training = Overview(
@@ -206,7 +206,7 @@ Update: W = W - lr * ∇L (Adam)""".trimIndent(),
             "For each batch of text: predict next token, compute error, backprop gradients, update weights.",
             "Without training: random weights → random outputs. Zero knowledge. Architecture→intelligence via training.",
             "Training transforms random architecture into language understanding through exposure to billions of tokens.",
-            listOf(ref("Adam Optimizer","https://arxiv.org/abs/1412.6980"), ref("GPT-3 Training","https://arxiv.org/abs/2005.14165")))
+            listOf(Reference("Adam Optimizer","https://arxiv.org/abs/1412.6980"), Reference("GPT-3 Training","https://arxiv.org/abs/2005.14165")))
         ),
         zh = OverviewContent("训练循环", """
 一步：前向→损失→反向→更新
@@ -218,7 +218,7 @@ Loss=CrossEntropy(logits,targets)
             "每批文本：预测下一个 token，计算误差，反向传播梯度，更新权重。",
             "无训练：随机权重→随机输出。零知识。通过训练将架构转化为智能。",
             "训练通过接触数十亿 token 将随机架构转化为语言理解。",
-            listOf(ref("Adam 优化器","https://arxiv.org/abs/1412.6980"), ref("GPT-3 训练","https://arxiv.org/abs/2005.14165")))
+            listOf(Reference("Adam 优化器","https://arxiv.org/abs/1412.6980"), Reference("GPT-3 训练","https://arxiv.org/abs/2005.14165")))
     )
 
     fun getOverview(componentId: String): Overview? = when (componentId) {
