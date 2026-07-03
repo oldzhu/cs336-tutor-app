@@ -59,10 +59,11 @@ class HermesLLMProvider @Inject constructor(
         val prompt = "Compare code for '$componentId'. Expected:\n$expectedCode\n\nStudent:\n$userCode\n\nReturn JSON: {\"score\": float, \"passed\": bool, \"feedback\": string, \"suggestions\": [string]}"
         val result = callAPI(endpoint, apiKey, model, prompt)
         return try {
-            val json = JSONObject(result.trim().substringAfter("{").substringBeforeLast("}").let { "{$it}" })
+            val cleanJson = "{" + result.trim().substringAfter("{").substringBeforeLast("}") + "}"
+        val json = JSONObject(cleanJson)
             JudgeResult(json.optDouble("score", 0.0).toFloat() / 100f, json.optBoolean("passed", false),
                 json.optString("feedback", ""),
-                json.optJSONArray("suggestions")?.let { (0 until it.length()).map { i -> it.getString(i) } } ?: emptyList())
+                json.optJSONArray("suggestions")?.let { arr: JSONArray -> (0 until arr.length()).map { i: Int -> arr.getString(i) } } ?: emptyList())
         } catch (e: Exception) {
             JudgeResult(0.7f, true, "Accepted", emptyList())
         }
