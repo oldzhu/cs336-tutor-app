@@ -36,7 +36,7 @@ class DeepSeekLLMProvider @Inject constructor(
     private fun getConfig(): Triple<String, String, String> {
         val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
         val ep = prefs.getString("api_endpoint", "https://api.deepseek.com/v1") ?: "https://api.deepseek.com/v1"
-        val key = prefs.getString("api_key", "") ?: ""
+        val key = (prefs.getString("api_key", "") ?: "").trim()
         val model = prefs.getString("model", "deepseek-v4-flash") ?: "deepseek-v4-flash"
         return Triple(ep, key, model)
     }
@@ -48,14 +48,14 @@ class DeepSeekLLMProvider @Inject constructor(
 
     override suspend fun explain(componentId: String, codeLines: List<String>): Flow<ExplanationChunk> = flow {
         val (ep, key, model) = getConfig()
-        val prompt = "Explain each line of $componentId:\n" + codeLines.joinToString("\n")
+        val prompt =  "Explain each line of $componentId:\n" + codeLines.joinToString("\n")
         emit(ExplanationChunk(chat(ep, key, model, prompt), true))
     }
 
     override suspend fun judge(componentId: String, userCode: String, expectedCode: String): JudgeResult {
         if (!hasKey()) return JudgeResult(1.0f, true, "Configure API key in Settings for real evaluation.")
         val (ep, key, model) = getConfig()
-        val prompt = "Compare code for $componentId.\nExpected:\n$expectedCode\n\nStudent:\n$userCode\n\nReply PASS or FAIL with short feedback."
+        val prompt =  "Compare code for $componentId.\nExpected:\n$expectedCode\n\nStudent:\n$userCode\n\nReply PASS or FAIL with short feedback."
         val result: String = chat(ep, key, model, prompt)
         val passed = result.contains("PASS", ignoreCase = true) && !result.contains("FAIL", ignoreCase = true)
         return JudgeResult(score = if (passed) 1.0f else 0.5f, passed = passed, feedback = result.take(300))
@@ -102,4 +102,17 @@ class DeepSeekLLMProvider @Inject constructor(
             content
         }
     }
+
+    // Test helpers
+    fun hasKeyForTest(): Boolean {
+        val prefs = context.getSharedPreferences("test_provider", Context.MODE_PRIVATE)
+        val key = (prefs.getString("api_key", "") ?: "").trim()
+        return key.isNotEmpty()
+    }
+
+    fun getKeyForTest(): String {
+        val prefs = context.getSharedPreferences("test_provider", Context.MODE_PRIVATE)
+        return (prefs.getString("api_key", "") ?: "").trim()
+    }
+
 }
