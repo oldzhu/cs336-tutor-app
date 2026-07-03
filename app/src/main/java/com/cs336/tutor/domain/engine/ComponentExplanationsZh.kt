@@ -140,6 +140,14 @@ object ComponentExplanationsZh {
         13 to listOf("元素乘法（*）使其成为门控激活")
     )
 
+    val trainingHints = mapOf(
+        6 to listOf("忘记 zero_grad() 是常见 bug——loss 不会下降"),
+        8 to listOf("logits 形状 (batch,seq,vocab_size)——每个位置预测下一个 token"),
+        11 to listOf("view(-1, vocab_size) 展平批次和序列维度")
+    )
+    val lmheadHints = mapOf(
+        6 to listOf("权重共享：LM Head 权重通常与 Embedding 共享以节省参数")
+    )
     val transformerHints = mapOf(
         11 to listOf("Pre-LN vs Post-LN：Pre-LN 对训练深层网络更稳定"),
         16 to listOf("残差连接至关重要——没有它们，深层网络中梯度会消失"),

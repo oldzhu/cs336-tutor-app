@@ -28,6 +28,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalContext
 import com.cs336.tutor.R
 import androidx.compose.ui.window.Dialog
@@ -227,6 +229,7 @@ fun AIExplanationPanel(
 
         // Overview dialog
         if (showOverview) {
+            val uriHandler = LocalUriHandler.current
             val overview = ComponentOverviews.getOverview(componentId)
             val isZh = (ctx.getSharedPreferences("app_settings", 0).getString("language", "en") ?: "en") == "zh"
             if (overview != null) {
@@ -254,8 +257,8 @@ fun AIExplanationPanel(
                                 Spacer(Modifier.height(2.dp))
                                 Text("• ${ref.label}", style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.primary)
-                                Text(ref.url, style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(ref.url, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelSmall,
+                                    modifier = Modifier.clickable { uriHandler.openUri(ref.url) })
                             }
                         }
                     },

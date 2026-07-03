@@ -21,7 +21,8 @@ data class DashboardUiState(
 private val NAMES_ZH = mapOf(
     "bpe" to "BPE 分词器", "embedding" to "Embedding 嵌入层", "rmsnorm" to "RMSNorm",
     "rope" to "RoPE 旋转位置编码", "attention" to "多头自注意力", "ffn" to "SwiGLU 前馈网络",
-    "transformer" to "Transformer 块", "lmhead" to "LM Head 输出头", "training" to "训练循环"
+    "transformer" to "Transformer 块", "lmhead" to "LM Head 输出头", "optimizer" to "Adam 优化器",
+    "training" to "训练循环"
 )
 private val DESC_ZH = mapOf(
     "bpe" to "Byte-Pair Encoding — 从零实现子词分词",
@@ -32,6 +33,7 @@ private val DESC_ZH = mapOf(
     "ffn" to "SwiGLU 激活的前馈网络",
     "transformer" to "组装所有组件的完整 Transformer 块",
     "lmhead" to "语言模型输出头：隐藏状态 → 词汇表 logits",
+    "optimizer" to "Adam/AdamW 优化器 — 自适应梯度优化",
     "training" to "训练循环：前向→损失→反向→优化器更新"
 )
 

@@ -53,6 +53,7 @@ class SplitScreenTutorViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val component = tutorEngine.loadComponent(componentId)
+                val compName = if (isChinese) mapOf("bpe" to "BPE 分词器","embedding" to "Embedding 嵌入层","rmsnorm" to "RMSNorm","rope" to "RoPE 旋转位置编码","attention" to "多头自注意力","ffn" to "SwiGLU 前馈网络","transformer" to "Transformer 块","lmhead" to "LM Head 输出头","optimizer" to "Adam 优化器","training" to "训练循环")[componentId] ?: component.name else component.name
                 allCodeLines = component.codeLines
                 if (isChinese) {
                     val zhExps = ComponentExplanationsZh.getExplanations(componentId)
@@ -66,7 +67,7 @@ class SplitScreenTutorViewModel @Inject constructor(
                 }
                 _uiState.value = _uiState.value.copy(
                     componentId = componentId,
-                    componentName = component.name,
+                    componentName = compName,
                     codeLines = allCodeLines,
                     isLoading = false
                 )
