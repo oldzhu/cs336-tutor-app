@@ -46,7 +46,6 @@ class SplitScreenTutorViewModel @Inject constructor(
     private val userCodeMap = mutableMapOf<Int, String>()
 
     fun initialize(componentId: String) {
-        val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
         val currentLang = prefs.getString("language", "en") ?: "en"
         val langChanged = (currentLang == "zh") != isChinese
         if (_uiState.value.componentId == componentId && allCodeLines.isNotEmpty() && !langChanged) return
