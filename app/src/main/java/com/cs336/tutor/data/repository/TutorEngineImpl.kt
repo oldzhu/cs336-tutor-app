@@ -2,9 +2,11 @@ package com.cs336.tutor.data.repository
 
 import com.cs336.tutor.domain.engine.AttentionComponent
 import com.cs336.tutor.domain.engine.BPEComponent
+import com.cs336.tutor.domain.engine.EmbeddingComponent
 import com.cs336.tutor.domain.engine.FFNComponent
 import com.cs336.tutor.domain.engine.RMSNormComponent
 import com.cs336.tutor.domain.engine.RoPEComponent
+import com.cs336.tutor.domain.engine.TrainingLoopComponent
 import com.cs336.tutor.domain.engine.TransformerBlockComponent
 import com.cs336.tutor.domain.engine.TutorEngine
 import com.cs336.tutor.domain.model.ComponentSpec
@@ -26,8 +28,9 @@ class TutorEngineImpl @Inject constructor() : TutorEngine {
 
     init {
         val specs = listOf(
-            BPEComponent.spec, RMSNormComponent.spec, RoPEComponent.spec,
-            AttentionComponent.spec, FFNComponent.spec, TransformerBlockComponent.spec
+            BPEComponent.spec, EmbeddingComponent.spec, RMSNormComponent.spec,
+            RoPEComponent.spec, AttentionComponent.spec, FFNComponent.spec,
+            TransformerBlockComponent.spec, TrainingLoopComponent.spec
         )
         _components.value = specs.map { spec ->
             TutorComponent(
