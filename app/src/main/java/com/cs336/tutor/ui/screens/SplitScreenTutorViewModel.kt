@@ -55,9 +55,12 @@ class SplitScreenTutorViewModel @Inject constructor(
                 allCodeLines = component.codeLines
                 if (isChinese) {
                     val zhExps = ComponentExplanationsZh.getExplanations(componentId)
+                    val zhHints = ComponentExplanationsZh.getHints(componentId)
                     allCodeLines = allCodeLines.map { line ->
                         val zhExp = zhExps[line.lineNumber]
-                        if (zhExp != null) line.copy(explanationZh = zhExp) else line
+                        val zhHint = zhHints[line.lineNumber]
+                        val newLine = if (zhExp != null) line.copy(explanationZh = zhExp) else line
+                        if (zhHint != null) newLine.copy(hints = zhHint) else newLine
                     }
                 }
                 _uiState.value = _uiState.value.copy(

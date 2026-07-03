@@ -92,6 +92,39 @@ object ComponentExplanationsZh {
         19 to "输出形状同输入(batch,seq_len,dim)，即可堆叠多个 block。"
     )
     
+
+    // Hint translations (keyed by line number)
+    val bpeHints = mapOf(
+        2 to listOf("Counter 类似 dict，但对缺失的键默认返回 0"),
+        7 to listOf("也可用 defaultdict(int) 让代码更简洁"),
+        9 to listOf("等价于: if pair in counts: counts[pair] += 1 else: counts[pair] = 1"),
+        15 to listOf("也可用 for 循环加手动索引，但 while 更清晰"),
+        16 to listOf("i < len(ids) - 1 防止在最后一个元素出现 IndexError"),
+        29 to listOf("用 OrderedDict 保留合并顺序"),
+        33 to listOf("O(n) 每次迭代 — 考虑为长文本优化"),
+        36 to listOf("两个 pair 计数相同时会怎样？这是确定性的吗？"),
+        39 to listOf("合并的 ORDER 对正确编码至关重要"),
+        49 to listOf("存储 merges 并立即调用 _build_vocab()"),
+        53 to listOf("vocab[idx] = vocab[p0] + vocab[p1] 递归构建字节字符串"),
+        61 to listOf("按优先级顺序应用合并，而非按频率"),
+        67 to listOf("为什么是 min 不是 max？因为索引越小=越早合并=优先级越高")
+    )
+
+    val rmsnormHints = mapOf(
+        4 to listOf("nn.Module 提供 .parameters()、.to(device)、.train()/.eval()"),
+        5 to listOf("eps 通常为 1e-6 或 1e-5"),
+        8 to listOf("nn.Parameter 告诉 PyTorch 此张量应在训练中更新", "为什么没有 bias？RMSNorm 隐式归一化为零均值"),
+        10 to listOf("使用私有方法是一种设计选择——也可内联到 forward() 中"),
+        11 to listOf("keepdim=True 保持维度用于广播", "rsqrt 比 1/sqrt() 更高效"),
+        14 to listOf("为什么 float()？fp16 中 RMS 可能产生 NaN 而不进行此转换")
+    )
+
+    fun getHints(componentId: String): Map<Int, List<String>> = when (componentId) {
+        "bpe" -> bpeHints
+        "rmsnorm" -> rmsnormHints
+        else -> emptyMap()
+    }
+
     fun getExplanations(componentId: String): Map<Int, String> = when (componentId) {
         "bpe" -> BPEExplanationsZh.explanations
         "rmsnorm" -> rmsnorm
