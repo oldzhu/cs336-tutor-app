@@ -3,7 +3,6 @@ import android.content.Context
 import androidx.room.Room
 import com.cs336.tutor.data.local.dao.ProgressDao
 import com.cs336.tutor.data.local.TutorDatabase
-import com.cs336.tutor.data.remote.DeepSeekLLMProvider
 import com.cs336.tutor.data.remote.MockLLMProvider
 import com.cs336.tutor.data.repository.TutorEngineImpl
 import com.cs336.tutor.domain.engine.TutorEngine
@@ -21,9 +20,5 @@ object AppModule {
     @Provides @Singleton
     fun provideTutorEngine(engine: TutorEngineImpl): TutorEngine = engine
     @Provides @Singleton
-    fun provideLLMProvider(@ApplicationContext context: Context): LLMProvider {
-        val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
-        val hasKey = (prefs.getString("api_key", "") ?: "").isNotEmpty()
-        return if (hasKey) DeepSeekLLMProvider(context) else MockLLMProvider()
-    }
+    fun provideLLMProvider(): LLMProvider = MockLLMProvider()
 }
