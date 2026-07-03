@@ -13,7 +13,6 @@ import kotlinx.coroutines.withContext
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 import javax.inject.Inject
@@ -28,7 +27,6 @@ class DeepSeekLLMProvider @Inject constructor(
         .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
         .readTimeout(90, java.util.concurrent.TimeUnit.SECONDS)
         .build()
-
     private val JSON = "application/json; charset=utf-8".toMediaType()
 
     override val name: String = "DeepSeek"
@@ -42,43 +40,58 @@ class DeepSeekLLMProvider @Inject constructor(
     }
 
     override suspend fun explain(componentId: String, codeLines: List<String>): Flow<ExplanationChunk> = flow {
-        val (endpoint, apiKey, model) = getConfig()
-        val prompt = "Explain each line of this $componentId code:\n" + codeLines.joinToString("\n")
-        val result = chat(endpoint, apiKey, model, prompt)
-        emit(ExplanationChunk(result, true))
+        val (ep, key, model) = getConfig()
+        val p = "Explain each line of $componentId:\n" + codeLines.joinToString("\n")
+        val r: String = call(ep, key, model, p)
+        emit(ExplanationChunk(r, true))
     }
 
     override suspend fun judge(componentId: String, userCode: String, expectedCode: String): JudgeResult {
-        val (endpoint, apiKey, model) = getConfig()
-        val prompt = "Compare student code for $componentId.\nExpected:\n$expectedCode\n\nStudent:\n$userCode\n\nReply PASS or FAIL with short feedback."
-        val result = chat(endpoint, apiKey, model, prompt)
-        val passed = result.contains("PASS", ignoreCase = true) && !result.contains("FAIL", ignoreCase = true)
-        return JudgeResult(if (passed) 1.0f else 0.5f, passed, result.take(300), emptyList())
+        val (ep, key, model) = getConfig()
+        val p = "Compare code for $componentId.\nExpected:\n$expectedCode\n\nStudent:\n$userCode\n\nReply PASS or FAIL with feedback."
+        val r: String = call(ep, key, model, p)
+        val passed = r.contains("PASS", ignoreCase = true) && !r.contains("FAIL", ignoreCase = true)
+        val score: Float = if (passed) 1.0f else 0.5f
+        val fb: String = r.take(300)
+        val empty: List<String> = emptyList()
+        return JudgeResult(score, passed, fb, empty)
     }
 
-    override suspend fun answer(question: String, context: String): Flow<ExplanationChunk> {
-        val (endpoint, apiKey, model) = getConfig()
-        val result = chat(endpoint, apiKey, model, "Context: $context\nQ: $question")
-        return flowOf(ExplanationChunk(result, true))
+    override suspend fun answer(question: String, ctx: String): Flow<ExplanationChunk> {
+        val (ep, key, model) = getConfig()
+        val r: String = call(ep, key, model, "Context: $ctx\nQ: $question")
+        return flowOf(ExplanationChunk(r, true))
     }
 
     override suspend fun generateComponent(spec: ComponentSpec): TutorComponent {
         return TutorComponent(spec.id, spec.name, spec.description, false, spec.prerequisites, spec.codeLines)
     }
 
-    private suspend fun chat(endpoint: String, apiKey: String, model: String, prompt: String): String =
+    private suspend fun call(endpoint: String, apiKey: String, model: String, prompt: String): String =
         withContext(Dispatchers.IO) {
             val url = endpoint.trimEnd('/') + "/chat/completions"
-            val escaped = prompt.replace("\\", "\\\\").replace(""", "\\"").replace("
-", "\\n")
-            val jsonBody = "{\"model\":\"$model\",\"messages\":[{\"role\":\"user\",\"content\":\"$escaped\"}],\"temperature\":0.3,\"max_tokens\":2048}"
+            val root = JSONObject()
+            root.put("model", model as Any)
+            val msg = JSONObject()
+            msg.put("role", "user" as Any)
+            msg.put("content", prompt as Any)
+            val arr = org.json.JSONArray()
+            arr.put(msg as Any)
+            root.put("messages", arr as Any)
+            root.put("temperature", 0.3 as Any)
+            root.put("max_tokens", 2048 as Any)
+
             val req = Request.Builder().url(url)
                 .addHeader("Authorization", "Bearer $apiKey")
                 .addHeader("Content-Type", "application/json")
-                .post(jsonBody.toRequestBody(JSON)).build()
+                .post(root.toString().toRequestBody(JSON)).build()
             val resp: Response = client.newCall(req).execute()
             val bodyStr: String = resp.body?.string() ?: throw IOException("Empty")
-            if (!resp.isSuccessful) throw IOException("API error ${resp.code}")
-            JSONObject(bodyStr).getJSONArray("choices").getJSONObject(0).getJSONObject("message").getString("content")
+            if (!resp.isSuccessful) throw IOException("API error " + resp.code)
+            val rj = JSONObject(bodyStr)
+            val ch = rj.getJSONArray("choices")
+            val fst = ch.getJSONObject(0)
+            val m = fst.getJSONObject("message")
+            m.getString("content")
         }
 }
