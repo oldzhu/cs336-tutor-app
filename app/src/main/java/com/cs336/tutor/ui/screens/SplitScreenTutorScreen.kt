@@ -348,7 +348,7 @@ fun AIExplanationPanel(
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = explanation.ifBlank { "Navigate to a line to see explanation." },
+                        text = explanation.ifBlank { stringResource(R.string.navigate_hint) },
                         style = MaterialTheme.typography.bodySmall,
                         lineHeight = 18.sp
                     )

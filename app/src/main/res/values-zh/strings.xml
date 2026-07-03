@@ -62,4 +62,5 @@
     <string name="locked">🔒 已锁定</string>
     <string name="completed">已完成</string>
     <string name="progress">进度</string>
+    <string name="navigate_hint">点击一行代码查看解释</string>
 </resources>

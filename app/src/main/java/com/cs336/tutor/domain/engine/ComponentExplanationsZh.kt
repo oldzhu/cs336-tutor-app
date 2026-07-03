@@ -185,6 +185,8 @@ object ComponentExplanationsZh {
         6 to listOf("权重共享：LM Head 通常与 Embedding 共享权重以节省参数")
     )
 
+
+    val optimizerHints = mapOf(3 to listOf("AdamW 优于 Adam——权重衰减与梯度更新解耦"), 10 to listOf("每个参数自动获得独立的等效学习率"))
     val trainingHints = mapOf(
         6 to listOf("忘记 zero_grad() 是常见 bug——loss 不会下降"),
         8 to listOf("logits 形状 (batch,seq,vocab_size)")
@@ -199,6 +201,7 @@ object ComponentExplanationsZh {
         "transformer" -> transformerHints
         "lmhead" -> lmheadHints
         "training" -> trainingHints
+        "optimizer" -> optimizerHints
         else -> emptyMap()
     }
 
