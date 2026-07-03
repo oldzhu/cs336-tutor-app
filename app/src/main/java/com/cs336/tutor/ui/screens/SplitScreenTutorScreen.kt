@@ -172,7 +172,7 @@ fun AIExplanationPanel(
                     }
                 }
                 Text(
-                    text = "Line ${currentLine?.lineNumber ?: "?"} of $lineCount",
+                    text = "Line ${currentLineIndex + 1} of $lineCount",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.clickable { showLineJump = true }
