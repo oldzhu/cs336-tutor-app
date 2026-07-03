@@ -153,9 +153,11 @@ class SplitScreenTutorViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(isAnswerLoading = true, answerText = "")
         viewModelScope.launch {
             try {
+                val allCode = allCodeLines.joinToString("\n") { "${it.lineNumber}: ${it.code}" }
                 val ctx = "Component: ${_uiState.value.componentName}\n" +
+                    "Full code:\n$allCode\n\n" +
                     "Current line (${_uiState.value.currentLine?.lineNumber}): ${_uiState.value.currentLine?.code}\n" +
-                    "User code: ${_uiState.value.userCode}\n"
+                    "User code: ${_uiState.value.userCode}"
                 val flow = llmProvider.answer(question = q, context = ctx)
                 flow.collect { chunk -> _uiState.value = _uiState.value.copy(answerText = _uiState.value.answerText + chunk.text, isAnswerLoading = !chunk.isComplete) }
             } catch (e: Exception) { _uiState.value = _uiState.value.copy(answerText = "Error: ${e.message}", isAnswerLoading = false) }
