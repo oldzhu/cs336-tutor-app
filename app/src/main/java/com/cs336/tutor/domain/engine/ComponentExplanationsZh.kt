@@ -156,6 +156,7 @@ object ComponentExplanationsZh {
     )
 
     val lmhead = mapOf(
+        1 to "导入 PyTorch 神经网络模块，提供 nn.Module 和 nn.Linear。",
         3 to "最后一层：隐藏状态→token 预测。(batch,seq,dim)→(batch,seq,vocab_size)。",
         4 to "dim=模型维度，vocab_size=词汇表大小。",
         6 to "关键行：线性投影 dim→vocab_size。bias=False（现代做法）。",
@@ -164,6 +165,7 @@ object ComponentExplanationsZh {
     )
 
     val optimizer = mapOf(
+        1 to "导入 PyTorch——提供张量操作和自动微分。",
         3 to "关键行：AdamW——动量+自适应学习率+解耦权重衰减。lr=3e-4。",
         5 to "经典 Adam（无权重衰减）。较简单但对大模型效果较差。",
         8 to "第一矩（梯度均值）：平滑噪声梯度。",
@@ -172,6 +174,7 @@ object ComponentExplanationsZh {
     )
 
     val training = mapOf(
+        1 to "导入 PyTorch——提供张量操作和自动微分。",
         4 to "一个完整训练步骤：前向→损失→反向→更新。",
         6 to "关键：反向传播前清零所有梯度。忘记此步会导致梯度累积！",
         8 to "前向传播通过整个模型。每位置预测下一 token。",

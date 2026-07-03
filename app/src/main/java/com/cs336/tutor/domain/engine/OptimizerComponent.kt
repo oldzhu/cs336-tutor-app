@@ -8,7 +8,7 @@ object OptimizerComponent {
         description = "Adam (Adaptive Moment Estimation): combines momentum and RMSProp for efficient gradient-based optimization.",
         prerequisites = listOf("lmhead"),
         codeLines = listOf(
-            CodeLineStub(1, "import torch", "", isEditable = false),
+            CodeLineStub(1, "import torch", "Import PyTorch — provides tensor operations and automatic differentiation."),
             CodeLineStub(3, "optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4, betas=(0.9, 0.95), weight_decay=0.1)",
                 "KEY LINE: AdamW — Adam with decoupled weight decay. lr=3e-4 (standard for 7B models). betas control momentum decay rates. weight_decay=0.1 for regularization.",
                 hints = listOf("AdamW is preferred over Adam — weight decay is decoupled from gradient updates")),

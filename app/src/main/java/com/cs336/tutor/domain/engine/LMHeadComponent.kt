@@ -8,7 +8,7 @@ object LMHeadComponent {
         description = "Language Model Head: maps hidden states to vocabulary logits via a linear projection.",
         prerequisites = listOf("training"),
         codeLines = listOf(
-            CodeLineStub(1, "import torch.nn as nn", "", isEditable = false),
+            CodeLineStub(1, "import torch.nn as nn", "Import PyTorch neural network module for nn.Module and nn.Linear."),
             CodeLineStub(3, "class LMHead(nn.Module):",
                 "The final layer that converts hidden states to token predictions. Maps (batch, seq, dim) → (batch, seq, vocab_size)."),
             CodeLineStub(4, "def __init__(self, dim, vocab_size):",

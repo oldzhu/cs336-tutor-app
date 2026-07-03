@@ -8,7 +8,7 @@ object TrainingLoopComponent {
         description = "Complete training loop: forward pass, loss computation, backward pass, and optimizer step.",
         prerequisites = listOf("transformer"),
         codeLines = listOf(
-            CodeLineStub(1, "import torch", "", isEditable = false),
+            CodeLineStub(1, "import torch", "Import PyTorch — provides tensor operations and automatic differentiation."),
             CodeLineStub(2, "import torch.nn.functional as F", "Cross-entropy loss function.", isEditable = false),
             CodeLineStub(4, "def train_step(model, batch, optimizer):",
                 "One complete training step: forward → loss → backward → update. batch = (input_ids, target_ids)."),
