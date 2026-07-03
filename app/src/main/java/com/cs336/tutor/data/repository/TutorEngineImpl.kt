@@ -4,6 +4,7 @@ import com.cs336.tutor.domain.engine.AttentionComponent
 import com.cs336.tutor.domain.engine.BPEComponent
 import com.cs336.tutor.domain.engine.EmbeddingComponent
 import com.cs336.tutor.domain.engine.FFNComponent
+import com.cs336.tutor.domain.engine.LMHeadComponent
 import com.cs336.tutor.domain.engine.RMSNormComponent
 import com.cs336.tutor.domain.engine.RoPEComponent
 import com.cs336.tutor.domain.engine.TrainingLoopComponent
@@ -30,7 +31,8 @@ class TutorEngineImpl @Inject constructor() : TutorEngine {
         val specs = listOf(
             BPEComponent.spec, EmbeddingComponent.spec, RMSNormComponent.spec,
             RoPEComponent.spec, AttentionComponent.spec, FFNComponent.spec,
-            TransformerBlockComponent.spec, TrainingLoopComponent.spec
+            TransformerBlockComponent.spec, TrainingLoopComponent.spec,
+            LMHeadComponent.spec
         )
         _components.value = specs.map { spec ->
             TutorComponent(
