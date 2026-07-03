@@ -48,7 +48,7 @@ fun SplitScreenTutorScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(componentId) {
+        LaunchedEffect(componentId) {
         viewModel.initialize(componentId)
     }
 

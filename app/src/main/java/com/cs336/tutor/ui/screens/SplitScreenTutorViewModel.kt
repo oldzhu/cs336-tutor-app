@@ -46,7 +46,10 @@ class SplitScreenTutorViewModel @Inject constructor(
     private val userCodeMap = mutableMapOf<Int, String>()
 
     fun initialize(componentId: String) {
-        if (_uiState.value.componentId == componentId && allCodeLines.isNotEmpty()) return
+        val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        val currentLang = prefs.getString("language", "en") ?: "en"
+        val langChanged = (currentLang == "zh") != isChinese
+        if (_uiState.value.componentId == componentId && allCodeLines.isNotEmpty() && !langChanged) return
         _uiState.value = _uiState.value.copy(componentId = componentId, isLoading = true)
         val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
         isChinese = prefs.getString("language", "en") == "zh"
@@ -102,6 +105,12 @@ class SplitScreenTutorViewModel @Inject constructor(
     fun previousLine() {
         val prevIndex = _uiState.value.currentLineIndex - 1
         if (prevIndex >= 0) navigateToLine(prevIndex)
+    }
+
+
+    fun refreshForLanguage() {
+        allCodeLines = emptyList()
+        initialize(_uiState.value.componentId)
     }
 
     fun onCodeChange(newCode: String) {
