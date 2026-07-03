@@ -25,6 +25,9 @@ fun DashboardScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    // Refresh components on re-entry (handles language change without full restart)
+    LaunchedEffect(Unit) { viewModel.refresh() }
+
     Scaffold(
         topBar = {
             TopAppBar(
