@@ -30,10 +30,9 @@ class DeepSeekLLMProvider @Inject constructor(
         .build()
     private val JSON = "application/json; charset=utf-8".toMediaType()
     private val gson = Gson()
-
     override val name: String = "DeepSeek"
 
-        private fun getConfig(): Triple<String, String, String> {
+    private fun getConfig(): Triple<String, String, String> {
         val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
         val ep = prefs.getString("api_endpoint", "https://api.deepseek.com/v1") ?: "https://api.deepseek.com/v1"
         val key = (prefs.getString("api_key", "") ?: "").filter { !it.isWhitespace() }
@@ -41,21 +40,19 @@ class DeepSeekLLMProvider @Inject constructor(
         return Triple(ep, key, model)
     }
 
-    private fun hasKey(): Boolean {
-        val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
-        return (prefs.getString("api_key", "") ?: "").isNotEmpty()
-    }
+    private fun hasKey(): Boolean = getConfig().second.isNotEmpty()
 
     override suspend fun explain(componentId: String, codeLines: List<String>): Flow<ExplanationChunk> = flow {
+        if (!hasKey()) { emit(ExplanationChunk("Configure API key in Settings to enable AI explanations.", true)); return@flow }
         val (ep, key, model) = getConfig()
-        val prompt =  "Explain each line of $componentId:\n" + codeLines.joinToString("\n")
+        val prompt = "Explain each line of $componentId:\n" + codeLines.joinToString("\n")
         emit(ExplanationChunk(chat(ep, key, model, prompt), true))
     }
 
     override suspend fun judge(componentId: String, userCode: String, expectedCode: String): JudgeResult {
         if (!hasKey()) return JudgeResult(1.0f, true, "Configure API key in Settings for real evaluation.")
         val (ep, key, model) = getConfig()
-        val prompt =  "Compare code for $componentId.\nExpected:\n$expectedCode\n\nStudent:\n$userCode\n\nReply PASS or FAIL with short feedback."
+        val prompt = "Compare code for $componentId.\nExpected:\n$expectedCode\n\nStudent:\n$userCode\n\nReply PASS or FAIL with short feedback."
         val result: String = chat(ep, key, model, prompt)
         val passed = result.contains("PASS", ignoreCase = true) && !result.contains("FAIL", ignoreCase = true)
         return JudgeResult(score = if (passed) 1.0f else 0.5f, passed = passed, feedback = result.take(300))
@@ -64,7 +61,7 @@ class DeepSeekLLMProvider @Inject constructor(
     override suspend fun answer(question: String, ctx: String): Flow<ExplanationChunk> {
         if (!hasKey()) return flowOf(ExplanationChunk("Configure API key in Settings to enable Q&A."))
         val (ep, key, model) = getConfig()
-        val result = chat(ep, key, model, "Context: $ctx\nQ: $question")
+        val result: String = chat(ep, key, model, "Context: $ctx\nQ: $question")
         return flowOf(ExplanationChunk(result, true))
     }
 
@@ -102,19 +99,4 @@ class DeepSeekLLMProvider @Inject constructor(
             content
         }
     }
-
-    // Test helpers
-    fun hasKeyForTest(): Boolean {
-        val prefs = context.getSharedPreferences("test_provider", Context.MODE_PRIVATE)
-        val key = (prefs.getString("api_key", "") ?: "").replace("
-", "").replace("
-", "").replace(" ", "").trim()
-        return key.isNotEmpty()
-    }
-
-    fun getKeyForTest(): String {
-        val prefs = context.getSharedPreferences("test_provider", Context.MODE_PRIVATE)
-        return (prefs.getString("api_key", "") ?: "").filter { !it.isWhitespace() }
-    }
-
 }
