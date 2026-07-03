@@ -61,6 +61,8 @@ class DashboardViewModel @Inject constructor(
 
     init { loadComponents() }
 
+    fun refresh() { loadComponents() }
+
     private fun loadComponents() {
         viewModelScope.launch {
             val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)

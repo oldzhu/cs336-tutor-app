@@ -75,7 +75,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // === LLM Provider Selection ===
-            Text(text = "LLM Provider", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.llm_provider_label), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 FilterChip(
@@ -174,11 +174,11 @@ fun SettingsScreen(
                 enabled = !uiState.isSaving
             ) {
                 if (uiState.isSaving) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
-                Text(if (uiState.isSaving) "Saving..." else "Save Settings")
+                Text(if (uiState.isSaving) stringResource(R.string.saving) else stringResource(R.string.save_settings))
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                "After saving, the app will use the configured provider for all AI features.",
+                stringResource(R.string.settings_hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
