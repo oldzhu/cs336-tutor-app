@@ -32,8 +32,8 @@ class TutorEngineImpl @Inject constructor() : TutorEngine {
         val specs = listOf(
             BPEComponent.spec, EmbeddingComponent.spec, RMSNormComponent.spec,
             RoPEComponent.spec, AttentionComponent.spec, FFNComponent.spec,
-            TransformerBlockComponent.spec, LMHeadComponent.spec, TrainingLoopComponent.spec,
-            OptimizerComponent.spec,
+            TransformerBlockComponent.spec, LMHeadComponent.spec,
+            OptimizerComponent.spec, TrainingLoopComponent.spec
         )
         _components.value = specs.map { spec ->
             TutorComponent(
