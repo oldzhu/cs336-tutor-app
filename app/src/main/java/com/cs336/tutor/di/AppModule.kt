@@ -2,7 +2,7 @@ package com.cs336.tutor.di
 
 import android.content.Context
 import androidx.room.Room
-import com.cs336.tutor.data.local.ProgressDao
+import com.cs336.tutor.data.local.dao.ProgressDao
 import com.cs336.tutor.data.local.TutorDatabase
 import com.cs336.tutor.data.remote.HermesLLMProvider
 import com.cs336.tutor.data.remote.MockLLMProvider
