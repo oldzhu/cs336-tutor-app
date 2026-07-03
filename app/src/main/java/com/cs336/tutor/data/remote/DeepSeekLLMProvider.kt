@@ -69,17 +69,16 @@ class DeepSeekLLMProvider @Inject constructor(
     private suspend fun chat(endpoint: String, apiKey: String, model: String, prompt: String): String =
         withContext(Dispatchers.IO) {
             val url = endpoint.trimEnd('/') + "/chat/completions"
-            val jsonBody = """{"model":"$model","messages":[{"role":"user","content":${JSONObject.quote(prompt)}}],"temperature":0.3,"max_tokens":2048}"""
-            val request = Request.Builder()
-                .url(url)
+            val escaped = prompt.replace("\\", "\\\\").replace(""", "\\"").replace("
+", "\\n")
+            val jsonBody = "{\"model\":\"$model\",\"messages\":[{\"role\":\"user\",\"content\":\"$escaped\"}],\"temperature\":0.3,\"max_tokens\":2048}"
+            val req = Request.Builder().url(url)
                 .addHeader("Authorization", "Bearer $apiKey")
                 .addHeader("Content-Type", "application/json")
-                .post(jsonBody.toRequestBody(JSON))
-                .build()
-            val resp: Response = client.newCall(request).execute()
-            val bodyStr: String = resp.body?.string() ?: throw IOException("Empty response")
-            if (!resp.isSuccessful) throw IOException("API ${resp.code}: $bodyStr")
-            val json: JSONObject = JSONObject(bodyStr)
-            json.getJSONArray("choices").getJSONObject(0).getJSONObject("message").getString("content")
+                .post(jsonBody.toRequestBody(JSON)).build()
+            val resp: Response = client.newCall(req).execute()
+            val bodyStr: String = resp.body?.string() ?: throw IOException("Empty")
+            if (!resp.isSuccessful) throw IOException("API error ${resp.code}")
+            JSONObject(bodyStr).getJSONArray("choices").getJSONObject(0).getJSONObject("message").getString("content")
         }
 }
