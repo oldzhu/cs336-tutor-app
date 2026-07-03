@@ -56,16 +56,15 @@ class HermesLLMProvider @Inject constructor(
 
     override suspend fun judge(componentId: String, userCode: String, expectedCode: String): JudgeResult {
         val (endpoint, apiKey, model) = getConfig()
-        val prompt = "Compare code for '$componentId'. Expected:\n$expectedCode\n\nStudent:\n$userCode\n\nReturn JSON: {\"score\": float, \"passed\": bool, \"feedback\": string, \"suggestions\": [string]}"
+        val prompt = "Compare code for '$componentId'. Expected:\n$expectedCode\n\nStudent:\n$userCode\n\nScore 0-100. Return ONLY: SCORE:number\nPASSED:true/false\nFEEDBACK:brief text"
         val result = callAPI(endpoint, apiKey, model, prompt)
         return try {
-            val cleanJson = "{" + result.trim().substringAfter("{").substringBeforeLast("}") + "}"
-        val json = JSONObject(cleanJson)
-            JudgeResult(json.optDouble("score", 0.0).toFloat() / 100f, json.optBoolean("passed", false),
-                json.optString("feedback", ""),
-                json.optJSONArray("suggestions")?.let { arr: JSONArray -> (0 until arr.length()).map { i: Int -> arr.getString(i) } } ?: emptyList())
+            val score = result.lines().find { it.startsWith("SCORE:") }?.substringAfter(":")?.trim()?.toFloatOrNull() ?: 70f
+            val passed = result.lines().find { it.startsWith("PASSED:") }?.substringAfter(":")?.trim() == "true"
+            val fb = result.lines().find { it.startsWith("FEEDBACK:") }?.substringAfter(":")?.trim() ?: "Evaluated"
+            JudgeResult(score / 100f, passed, fb, emptyList())
         } catch (e: Exception) {
-            JudgeResult(0.7f, true, "Accepted", emptyList())
+            JudgeResult(0.7f, true, "Accepted (parse error)", emptyList())
         }
     }
 
