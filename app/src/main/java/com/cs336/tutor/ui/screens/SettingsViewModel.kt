@@ -34,7 +34,14 @@ class SettingsViewModel @Inject constructor(
     init {
         val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
         val savedLang = prefs.getString("language", "en") ?: "en"
-        _uiState.value = _uiState.value.copy(isChinese = savedLang == "zh")
+        _uiState.value = SettingsUiState(
+            isRemote = prefs.getBoolean("is_remote", true),
+            isChinese = savedLang == "zh",
+            apiEndpoint = prefs.getString("api_endpoint", "https://api.deepseek.com/v1") ?: "https://api.deepseek.com/v1",
+            apiKey = prefs.getString("api_key", "") ?: "",
+            modelName = prefs.getString("model", "deepseek-v4-flash") ?: "deepseek-v4-flash",
+            localEndpoint = prefs.getString("local_endpoint", "http://localhost:11434") ?: "http://localhost:11434"
+        )
     }
 
     fun onLanguageChanged(isChinese: Boolean) {
