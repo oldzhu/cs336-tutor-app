@@ -40,7 +40,7 @@ class DeepSeekLLMProvider @Inject constructor(
         return Triple(ep, key, model)
     }
 
-    private fun hasKey(): Boolean = getConfig().second.isNotEmpty()
+    private fun hasKey(): Boolean { val k = getConfig().second; return k.isNotEmpty() && k.startsWith("sk-") }
 
     override suspend fun explain(componentId: String, codeLines: List<String>): Flow<ExplanationChunk> = flow {
         if (!hasKey()) { emit(ExplanationChunk("Configure API key in Settings to enable AI explanations.", true)); return@flow }
