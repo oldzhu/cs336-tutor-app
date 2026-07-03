@@ -150,7 +150,7 @@ fun AIExplanationPanel(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "📖 AI Tutor",
+                        text = stringResource(R.string.ai_tutor_title),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.weight(1f)
@@ -203,7 +203,7 @@ fun AIExplanationPanel(
             ) {
                 Column(modifier = Modifier.padding(10.dp)) {
                     Text(
-                        text = "💻 Code",
+                        text = stringResource(R.string.code_section),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
@@ -215,7 +215,7 @@ fun AIExplanationPanel(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = displayedCode.ifEmpty { "// " },
+                            text = displayedCode.ifEmpty { "▊" },
                             modifier = Modifier.padding(10.dp),
                             fontFamily = FontFamily.Monospace,
                             fontSize = 12.sp,
@@ -241,7 +241,7 @@ fun AIExplanationPanel(
             ) {
                 Column(modifier = Modifier.padding(10.dp)) {
                     Text(
-                        text = "🧠 What this does",
+                        text = stringResource(R.string.explanation_section),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
                         fontWeight = FontWeight.Bold

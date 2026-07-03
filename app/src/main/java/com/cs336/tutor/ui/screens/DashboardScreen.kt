@@ -44,12 +44,12 @@ fun DashboardScreen(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Learn Language Modeling from Scratch",
+                text = stringResource(R.string.dashboard_title),
                 style = MaterialTheme.typography.headlineSmall
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Choose a component to learn:",
+                text = stringResource(R.string.dashboard_subtitle),
                 style = MaterialTheme.typography.bodyLarge
             )
             Spacer(modifier = Modifier.height(16.dp))

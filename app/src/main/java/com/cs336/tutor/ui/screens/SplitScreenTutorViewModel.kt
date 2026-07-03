@@ -47,16 +47,12 @@ class SplitScreenTutorViewModel @Inject constructor(
     fun initialize(componentId: String) {
         if (_uiState.value.componentId == componentId && allCodeLines.isNotEmpty()) return
         _uiState.value = _uiState.value.copy(componentId = componentId, isLoading = true)
-
-        // Check language preference
         val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
         isChinese = prefs.getString("language", "en") == "zh"
-
         viewModelScope.launch {
             try {
                 val component = tutorEngine.loadComponent(componentId)
                 allCodeLines = component.codeLines
-                // Apply Chinese explanations if language is set to Chinese
                 if (isChinese) {
                     allCodeLines = allCodeLines.map { line ->
                         val zhExp = BPEExplanationsZh.explanations[line.lineNumber]
@@ -85,11 +81,7 @@ class SplitScreenTutorViewModel @Inject constructor(
         val expl = if (isChinese && line.explanationZh.isNotEmpty()) line.explanationZh else line.explanation
         _uiState.value = _uiState.value.copy(
             currentLineIndex = index,
-            currentLine = CodeLine(
-                lineNumber = line.lineNumber,
-                code = line.code,
-                explanation = expl
-            ),
+            currentLine = CodeLine(lineNumber = line.lineNumber, code = line.code, explanation = expl),
             explanation = expl,
             userCode = line.code,
             judgeResult = null
@@ -106,9 +98,7 @@ class SplitScreenTutorViewModel @Inject constructor(
         if (prevIndex >= 0) navigateToLine(prevIndex)
     }
 
-    fun onCodeChange(newCode: String) {
-        _uiState.value = _uiState.value.copy(userCode = newCode)
-    }
+    fun onCodeChange(newCode: String) { _uiState.value = _uiState.value.copy(userCode = newCode) }
 
     fun onJudge() {
         val state = _uiState.value
@@ -116,27 +106,15 @@ class SplitScreenTutorViewModel @Inject constructor(
         _uiState.value = state.copy(isLoading = true, judgeResult = null)
         viewModelScope.launch {
             try {
-                val expectedCode = state.currentLine?.code ?: ""
-                val result = llmProvider.judge(
-                    componentId = state.componentId,
-                    userCode = state.userCode,
-                    expectedCode = expectedCode
-                )
+                val result = llmProvider.judge(componentId = state.componentId, userCode = state.userCode, expectedCode = state.currentLine?.code ?: "")
                 _uiState.value = _uiState.value.copy(judgeResult = result, isLoading = false)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    judgeResult = JudgeResult(score = 0f, passed = false,
-                        feedback = "Judge error: ${e.message}",
-                        suggestions = listOf("Check your code syntax", "Try again")),
-                    isLoading = false
-                )
+                _uiState.value = _uiState.value.copy(judgeResult = JudgeResult(score = 0f, passed = false, feedback = "Judge error: ${e.message}", suggestions = listOf("Check your code syntax", "Try again")), isLoading = false)
             }
         }
     }
 
-    fun onQuestionChanged(question: String) {
-        _uiState.value = _uiState.value.copy(questionText = question)
-    }
+    fun onQuestionChanged(question: String) { _uiState.value = _uiState.value.copy(questionText = question) }
 
     fun onAskQuestion(question: String) {
         val q = question.trim()
@@ -144,22 +122,13 @@ class SplitScreenTutorViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(isAnswerLoading = true, answerText = "")
         viewModelScope.launch {
             try {
-                val context = buildString {
-                    append("Component: ${_uiState.value.componentName}\n")
-                    append("Current line (${_uiState.value.currentLine?.lineNumber}): ")
-                    append("${_uiState.value.currentLine?.code}\n")
-                    append("User code: ${_uiState.value.userCode}\n")
-                }
-                val flow = llmProvider.answer(question = q, context = context)
-                flow.collect { chunk ->
-                    _uiState.value = _uiState.value.copy(
-                        answerText = _uiState.value.answerText + chunk.text,
-                        isAnswerLoading = !chunk.isComplete
-                    )
-                }
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(answerText = "Error: ${e.message}", isAnswerLoading = false)
-            }
+                val ctx = "Component: ${_uiState.value.componentName}
+Current line (${_uiState.value.currentLine?.lineNumber}): ${_uiState.value.currentLine?.code}
+User code: ${_uiState.value.userCode}
+"
+                val flow = llmProvider.answer(question = q, context = ctx)
+                flow.collect { chunk -> _uiState.value = _uiState.value.copy(answerText = _uiState.value.answerText + chunk.text, isAnswerLoading = !chunk.isComplete) }
+            } catch (e: Exception) { _uiState.value = _uiState.value.copy(answerText = "Error: ${e.message}", isAnswerLoading = false) }
         }
     }
 }

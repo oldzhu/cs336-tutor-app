@@ -144,7 +144,7 @@ fun SettingsScreen(
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Done),
-                    supportingText = { Text("e.g. Ollama on LAN: http://YOUR_IP:11434") }
+                    supportingText = { Text(stringResource(R.string.local_endpoint_hint)) }
                 )
             }
 
