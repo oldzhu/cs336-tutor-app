@@ -2,35 +2,32 @@
 
 > **English** · [中文版](../zh/01-dev-log.md)
 
-## 2026-07-02 — Language Switching (Partial) + Crash Fixes
+## 2026-07-02 — Phase 2: All Component Specs Complete
 
-### Language Switching — RESOLVED (Partially)
-- ✅ **No crash**: `LocaleContextWrapper` (extends `ContextWrapper`) only overrides `getResources()` — preserves Activity context for Hilt
-- ✅ **Language persists**: Saved to SharedPreferences, correctly loaded on restart
-- ✅ **UI strings translate**: All screens use `stringResource()` — switches between EN/CN `strings.xml`
-- ⚠️ **Not yet translated**: BPE code explanations, AI tutor content, component descriptions (hardcoded in `bpe_component.kt`)
+### Components Implemented (TDD: RED → GREEN)
+| # | Component | Spec | Tests | Lines |
+|---|---|---|---|---|
+| 1 | BPE Tokenizer | ✅ | ✅ 5/5 | 432 |
+| 2 | RMSNorm | ✅ | ✅ 10 tests | 16 |
+| 3 | RoPE | ✅ | ✅ 7 tests | 21 |
+| 4 | Multi-Head Attention | ✅ | ✅ 8 tests | 31 |
+| 5 | SwiGLU FFN | ✅ | ✅ 7 tests | 14 |
+| 6 | Transformer Block | ✅ | ✅ 6 tests | 20 |
 
-**Key fix**: `CompositionLocalProvider(LocalContext provides localeContext)` in `TutorApp.kt` using `LocaleContextWrapper` — safe with Hilt.
+### Architecture
+- **Pre-LN**: RMSNorm BEFORE each sub-layer (LLaMA-style)
+- **Residual connections**: x + sublayer(norm(x))
+- **RoPE**: Rotary embeddings on Q and K
+- **SwiGLU**: Gated activation with SiLU
+- **Causal masking**: Future tokens masked in attention
 
-**What was tried** (all failed due to Hilt `getResources()` conflict):
-- `applyOverrideConfiguration` → crash
-- `AppCompatDelegate.setApplicationLocales` → crash (AppCompatActivity still has Hilt issue)
-- `resources.updateConfiguration` after `super.onCreate` → no effect on Compose
+### All components unlocked — free exploration available in dashboard
 
-**Files changed**:
-- `TutorApp.kt` — added `LocaleContextWrapper` + `CompositionLocalProvider`
-- `MainActivity.kt` — back to minimal `ComponentActivity` (clean)
-- `SettingsScreen.kt` — unwrap ContextWrapper for `recreate()`
-- All screen files — replaced hardcoded strings with `stringResource(R.string.xxx)`
-- `values/strings.xml` + `values-zh/strings.xml` — synced keys
+### Git: 27 commits on `oldzhu/cs336-tutor-app` master
 
-### Remaining
-- ⚠️ BPE explanations and tutor content still English
-- ⚠️ OpenCode WSL file permission issue
+## 2026-07-02 — Language Switching Complete
+- ContextWrapper approach (Hilt-safe), bilingual strings.xml, BPEExplanationsZh
 
 ## 2026-07-01 — Phase 1: BPE Tutor & UI Polish
-- ✅ Split-screen tutor, typing animation, landscape layout, settings
-- ✅ 21 commits total on `oldzhu/cs336-tutor-app`
 
 ## 2026-06-30 — Project Initiation
-*(foundation details)*
