@@ -114,7 +114,7 @@ class DeepSeekLLMProvider @Inject constructor(
 
     fun getKeyForTest(): String {
         val prefs = context.getSharedPreferences("test_provider", Context.MODE_PRIVATE)
-        return (prefs.getString("api_key", "") ?: "").trim()
+        return (prefs.getString("api_key", "") ?: "").filter { !it.isWhitespace() }
     }
 
 }
