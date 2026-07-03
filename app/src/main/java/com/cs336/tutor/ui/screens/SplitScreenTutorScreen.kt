@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -29,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import com.cs336.tutor.R
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cs336.tutor.domain.engine.ComponentOverviews
 import com.cs336.tutor.domain.model.CodeLineStub
 import com.cs336.tutor.domain.model.JudgeResult
 import kotlinx.coroutines.delay
@@ -75,6 +77,7 @@ fun SplitScreenTutorScreen(
             ) {
                 AIExplanationPanel(
                     modifier = Modifier.weight(1f),
+                    componentId = uiState.componentId,
                     codeLines = uiState.codeLines,
                     currentLineIndex = uiState.currentLineIndex,
                     currentLine = uiState.currentLine,
@@ -105,6 +108,7 @@ fun SplitScreenTutorScreen(
 @Composable
 fun AIExplanationPanel(
     modifier: Modifier = Modifier,
+    componentId: String,
     codeLines: List<CodeLineStub>,
     currentLineIndex: Int,
     currentLine: CodeLine?,
@@ -118,6 +122,7 @@ fun AIExplanationPanel(
     var showAllLines by remember { mutableStateOf(false) }
     var showLineJump by remember { mutableStateOf(false) }
     var jumpLineNumber by remember { mutableStateOf("") }
+    var showOverview by remember { mutableStateOf(false) }
     
     // Auto-repeat: type → pause → clear → retype loop
     var repeatTrigger by remember { mutableStateOf(0) }
@@ -165,6 +170,12 @@ fun AIExplanationPanel(
                         modifier = Modifier.weight(1f)
                     )
                     IconButton(
+                        onClick = { showOverview = true },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(Icons.Default.Info, contentDescription = "Overview", modifier = Modifier.size(18.dp))
+                    }
+                    IconButton(
                         onClick = { showAllLines = true },
                         modifier = Modifier.size(32.dp)
                     ) {
@@ -208,6 +219,46 @@ fun AIExplanationPanel(
                     TextButton(onClick = { showLineJump = false; jumpLineNumber = "" }) { Text("Cancel") }
                 }
             )
+        }
+
+        // Overview dialog
+        if (showOverview) {
+            val overview = ComponentOverviews.getOverview(componentId)
+            val isZh = java.util.Locale.getDefault().language == "zh"
+            if (overview != null) {
+                val content = if (isZh) overview.zh else overview.en
+                AlertDialog(
+                    onDismissRequest = { showOverview = false },
+                    title = { Text(content.title, fontWeight = FontWeight.Bold) },
+                    text = {
+                        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                            Text("📐 Formula / 公式", style = MaterialTheme.typography.titleSmall)
+                            Spacer(Modifier.height(4.dp))
+                            Text(content.formula, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
+                            Spacer(Modifier.height(12.dp))
+                            Text("⚙️ Algorithm / 算法", style = MaterialTheme.typography.titleSmall)
+                            Spacer(Modifier.height(4.dp))
+                            Text(content.algorithm, style = MaterialTheme.typography.bodySmall)
+                            Spacer(Modifier.height(12.dp))
+                            Text("💡 Why / 为什么", style = MaterialTheme.typography.titleSmall)
+                            Spacer(Modifier.height(4.dp))
+                            Text(content.why, style = MaterialTheme.typography.bodySmall)
+                            Spacer(Modifier.height(12.dp))
+                            Text("📚 References / 参考资料", style = MaterialTheme.typography.titleSmall)
+                            content.references.forEach { ref ->
+                                Spacer(Modifier.height(2.dp))
+                                Text("• ${ref.label}", style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary)
+                                Text(ref.url, style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { showOverview = false }) { Text("OK") }
+                    }
+                )
+            }
         }
 
         // Navigation row
