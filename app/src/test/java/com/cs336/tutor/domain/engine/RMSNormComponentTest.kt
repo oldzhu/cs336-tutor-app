@@ -21,35 +21,40 @@ class RMSNormComponentTest {
     }
 
     @Test
-    fun `code line 1 is function definition`() {
-        val line = RMSNormComponent.spec.codeLines[0]
-        assertTrue(line.code.contains("def"))
-        assertTrue(line.code.contains("RMSNorm"))
-        assertTrue(line.code.contains("nn.Module"))
-    }
-
-    @Test
-    fun `code line 2 defines weight parameter`() {
-        val line = RMSNormComponent.spec.codeLines[1]
-        assertTrue(line.code.contains("w") || line.code.contains("weight"))
-    }
-
-    @Test
-    fun `code line 3 defines epsilon constant`() {
-        val line3 = RMSNormComponent.spec.codeLines[2]
+    fun `class definition is in code lines`() {
         val allCode = RMSNormComponent.spec.codeLines.joinToString("\n") { it.code }
-        assertTrue(allCode.contains("eps") || allCode.contains("epsilon"))
+        assertTrue(allCode.contains("class RMSNorm"))
+        assertTrue(allCode.contains("nn.Module"))
     }
 
     @Test
-    fun `forward method contains rms computation`() {
+    fun `weight parameter is nn.Parameter of ones`() {
+        val allCode = RMSNormComponent.spec.codeLines.joinToString("\n") { it.code }
+        assertTrue(allCode.contains("nn.Parameter"))
+        assertTrue(allCode.contains("torch.ones"))
+    }
+
+    @Test
+    fun `epsilon is defined in init`() {
+        val allCode = RMSNormComponent.spec.codeLines.joinToString("\n") { it.code }
+        assertTrue(allCode.contains("eps"))
+    }
+
+    @Test
+    fun `forward method exists`() {
         val allCode = RMSNormComponent.spec.codeLines.joinToString("\n") { it.code }
         assertTrue(allCode.contains("forward"))
-        assertTrue(allCode.contains("pow") || allCode.contains("square") || allCode.contains("**"))
     }
 
     @Test
-    fun `spec has at least one exercise`() {
+    fun `rms computation uses pow and rsqrt`() {
+        val allCode = RMSNormComponent.spec.codeLines.joinToString("\n") { it.code }
+        assertTrue(allCode.contains("pow") || allCode.contains("square") || allCode.contains("**"))
+        assertTrue(allCode.contains("rsqrt") || allCode.contains("sqrt"))
+    }
+
+    @Test
+    fun `spec has exercises`() {
         assertTrue(RMSNormComponent.spec.exercises.isNotEmpty())
     }
 
