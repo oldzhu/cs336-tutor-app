@@ -37,7 +37,8 @@ class DeepSeekLLMProvider @Inject constructor(
         val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
         val ep = prefs.getString("api_endpoint", "https://api.deepseek.com/v1") ?: "https://api.deepseek.com/v1"
         val key = (prefs.getString("api_key", "") ?: "").replace("
-", "").replace("", "").replace(" ", "").trim()
+", "").replace("
+", "").replace(" ", "").trim()
         val model = prefs.getString("model", "deepseek-v4-flash") ?: "deepseek-v4-flash"
         return Triple(ep, key, model)
     }
@@ -108,7 +109,8 @@ class DeepSeekLLMProvider @Inject constructor(
     fun hasKeyForTest(): Boolean {
         val prefs = context.getSharedPreferences("test_provider", Context.MODE_PRIVATE)
         val key = (prefs.getString("api_key", "") ?: "").replace("
-", "").replace("", "").replace(" ", "").trim()
+", "").replace("
+", "").replace(" ", "").trim()
         return key.isNotEmpty()
     }
 
