@@ -69,32 +69,17 @@ class DeepSeekLLMProvider @Inject constructor(
     private suspend fun chat(endpoint: String, apiKey: String, model: String, prompt: String): String =
         withContext(Dispatchers.IO) {
             val url = endpoint.trimEnd('/') + "/chat/completions"
-            val body = JSONObject()
-            body.put("model", model)
-            val msg = JSONObject()
-            msg.put("role", "user")
-            msg.put("content", prompt)
-            val arr = JSONArray()
-            arr.put(msg)
-            body.put("messages", arr)
-            body.put("temperature", 0.3)
-            body.put("max_tokens", 2048)
-
+            val jsonBody = """{"model":"$model","messages":[{"role":"user","content":${JSONObject.quote(prompt)}}],"temperature":0.3,"max_tokens":2048}"""
             val request = Request.Builder()
                 .url(url)
                 .addHeader("Authorization", "Bearer $apiKey")
                 .addHeader("Content-Type", "application/json")
-                .post(body.toString().toRequestBody(JSON))
+                .post(jsonBody.toRequestBody(JSON))
                 .build()
-
-            val response: Response = client.newCall(request).execute()
-            val bodyStr: String = response.body?.string() ?: throw IOException("Empty response")
-            if (!response.isSuccessful) throw IOException("API ${response.code}: $bodyStr")
-
-            val json = JSONObject(bodyStr)
-            val choices: JSONArray = json.getJSONArray("choices")
-            val first: JSONObject = choices.getJSONObject(0)
-            val message: JSONObject = first.getJSONObject("message")
-            message.getString("content")
+            val resp: Response = client.newCall(request).execute()
+            val bodyStr: String = resp.body?.string() ?: throw IOException("Empty response")
+            if (!resp.isSuccessful) throw IOException("API ${resp.code}: $bodyStr")
+            val json: JSONObject = JSONObject(bodyStr)
+            json.getJSONArray("choices").getJSONObject(0).getJSONObject("message").getString("content")
         }
 }
