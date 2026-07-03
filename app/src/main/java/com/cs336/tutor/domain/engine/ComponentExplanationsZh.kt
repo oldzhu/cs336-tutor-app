@@ -119,13 +119,44 @@ object ComponentExplanationsZh {
         14 to listOf("为什么 float()？fp16 中 RMS 可能产生 NaN 而不进行此转换")
     )
 
+
+    val ropeHints = mapOf(
+        5 to listOf("为什么是 10000.0？这是原始 Transformer 论文的惯例"),
+        7 to listOf("外积：为每个位置一次性计算所有频率"),
+        8 to listOf("torch.polar 从幅度和角度创建复数"),
+        12 to listOf("view_as_complex 将浮点数对视为单个复数")
+    )
+
+    val attentionHints = mapOf(
+        9 to listOf("为什么 bias=False？RoPE 已编码位置——bias 会产生冲突"),
+        23 to listOf("sqrt(d_k) 缩放防止点积在大维度时变得过大"),
+        26 to listOf("dim=-1 表示沿键维度对每个 query 归一化"),
+        29 to listOf("transpose 后需要 contiguous() 才能使用 view()")
+    )
+
+    val ffnHints = mapOf(
+        7 to listOf("LLaMA 使用 8/3*dim 代替 4*dim 以获得更高效率"),
+        10 to listOf("为什么 bias=False？现代 LLM 在所有 Linear 层中都移除了 bias"),
+        13 to listOf("元素乘法（*）使其成为门控激活")
+    )
+
+    val transformerHints = mapOf(
+        11 to listOf("Pre-LN vs Post-LN：Pre-LN 对训练深层网络更稳定"),
+        16 to listOf("残差连接至关重要——没有它们，深层网络中梯度会消失"),
+        18 to listOf("输出现在可以被输入到下一个 TransformerBlock")
+    )
+
     fun getHints(componentId: String): Map<Int, List<String>> = when (componentId) {
         "bpe" -> bpeHints
         "rmsnorm" -> rmsnormHints
+        "rope" -> ropeHints
+        "attention" -> attentionHints
+        "ffn" -> ffnHints
+        "transformer" -> transformerHints
         else -> emptyMap()
     }
 
-    fun getExplanations(componentId: String): Map<Int, String> = when (componentId) {
+fun getExplanations(componentId: String): Map<Int, String> = when (componentId) {
         "bpe" -> BPEExplanationsZh.explanations
         "rmsnorm" -> rmsnorm
         "rope" -> rope
