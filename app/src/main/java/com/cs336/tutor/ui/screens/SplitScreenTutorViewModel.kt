@@ -1,16 +1,18 @@
 package com.cs336.tutor.ui.screens
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cs336.tutor.domain.engine.BPEExplanationsZh
 import com.cs336.tutor.domain.engine.TutorEngine
 import com.cs336.tutor.domain.model.CodeLineStub
 import com.cs336.tutor.domain.model.JudgeResult
 import com.cs336.tutor.domain.provider.LLMProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,21 +34,35 @@ data class SplitScreenTutorUiState(
 @HiltViewModel
 class SplitScreenTutorViewModel @Inject constructor(
     private val tutorEngine: TutorEngine,
-    private val llmProvider: LLMProvider
+    private val llmProvider: LLMProvider,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SplitScreenTutorUiState())
     val uiState: StateFlow<SplitScreenTutorUiState> = _uiState.asStateFlow()
 
     private var allCodeLines: List<CodeLineStub> = emptyList()
+    private var isChinese: Boolean = false
 
     fun initialize(componentId: String) {
         if (_uiState.value.componentId == componentId && allCodeLines.isNotEmpty()) return
         _uiState.value = _uiState.value.copy(componentId = componentId, isLoading = true)
+
+        // Check language preference
+        val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        isChinese = prefs.getString("language", "en") == "zh"
+
         viewModelScope.launch {
             try {
                 val component = tutorEngine.loadComponent(componentId)
                 allCodeLines = component.codeLines
+                // Apply Chinese explanations if language is set to Chinese
+                if (isChinese) {
+                    allCodeLines = allCodeLines.map { line ->
+                        val zhExp = BPEExplanationsZh.explanations[line.lineNumber]
+                        if (zhExp != null) line.copy(explanationZh = zhExp) else line
+                    }
+                }
                 _uiState.value = _uiState.value.copy(
                     componentId = componentId,
                     componentName = component.name,
@@ -66,47 +82,28 @@ class SplitScreenTutorViewModel @Inject constructor(
     fun navigateToLine(index: Int) {
         if (allCodeLines.isEmpty() || index < 0 || index >= allCodeLines.size) return
         val line = allCodeLines[index]
+        val expl = if (isChinese && line.explanationZh.isNotEmpty()) line.explanationZh else line.explanation
         _uiState.value = _uiState.value.copy(
             currentLineIndex = index,
             currentLine = CodeLine(
                 lineNumber = line.lineNumber,
                 code = line.code,
-                explanation = line.explanation
+                explanation = expl
             ),
-            explanation = line.explanation,
-            userCode = line.code,  // Pre-fill with target code as hint
+            explanation = expl,
+            userCode = line.code,
             judgeResult = null
         )
-        // Load AI explanation asynchronously
-        viewModelScope.launch {
-            try {
-                val flow = llmProvider.explain(
-                    componentId = _uiState.value.componentId,
-                    codeLines = listOf(line.code)
-                )
-                flow.collect { chunk ->
-                    if (chunk.isComplete) {
-                        // Use the explanation from the component spec already
-                    }
-                }
-            } catch (_: Exception) {
-                // Fallback: use the built-in explanation from CodeLineStub
-            }
-        }
     }
 
     fun nextLine() {
         val nextIndex = _uiState.value.currentLineIndex + 1
-        if (nextIndex < allCodeLines.size) {
-            navigateToLine(nextIndex)
-        }
+        if (nextIndex < allCodeLines.size) navigateToLine(nextIndex)
     }
 
     fun previousLine() {
         val prevIndex = _uiState.value.currentLineIndex - 1
-        if (prevIndex >= 0) {
-            navigateToLine(prevIndex)
-        }
+        if (prevIndex >= 0) navigateToLine(prevIndex)
     }
 
     fun onCodeChange(newCode: String) {
@@ -125,18 +122,12 @@ class SplitScreenTutorViewModel @Inject constructor(
                     userCode = state.userCode,
                     expectedCode = expectedCode
                 )
-                _uiState.value = _uiState.value.copy(
-                    judgeResult = result,
-                    isLoading = false
-                )
+                _uiState.value = _uiState.value.copy(judgeResult = result, isLoading = false)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
-                    judgeResult = JudgeResult(
-                        score = 0f,
-                        passed = false,
+                    judgeResult = JudgeResult(score = 0f, passed = false,
                         feedback = "Judge error: ${e.message}",
-                        suggestions = listOf("Check your code syntax", "Try again")
-                    ),
+                        suggestions = listOf("Check your code syntax", "Try again")),
                     isLoading = false
                 )
             }
@@ -167,10 +158,7 @@ class SplitScreenTutorViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    answerText = "Error: ${e.message}",
-                    isAnswerLoading = false
-                )
+                _uiState.value = _uiState.value.copy(answerText = "Error: ${e.message}", isAnswerLoading = false)
             }
         }
     }

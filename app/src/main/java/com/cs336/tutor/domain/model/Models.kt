@@ -13,6 +13,7 @@ data class CodeLineStub(
     val lineNumber: Int,
     val code: String,
     val explanation: String = "",
+    val explanationZh: String = "",
     val isEditable: Boolean = true,
     val hints: List<String> = emptyList()
 )
