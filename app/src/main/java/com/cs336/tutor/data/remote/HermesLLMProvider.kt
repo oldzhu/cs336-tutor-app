@@ -38,9 +38,8 @@ class HermesLLMProvider @Inject constructor(
     private fun getConfig(): Triple<String, String, String> {
         val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
         val isRemote = prefs.getBoolean("is_remote", true)
-        val endpoint = if (isRemote)
-            prefs.getString("api_endpoint", "https://api.deepseek.com/v1") ?: "https://api.deepseek.com/v1"
-        else prefs.getString("local_endpoint", "http://localhost:11434") ?: "http://localhost:11434"
+        val endpoint = if (isRemote) prefs.getString("api_endpoint", "https://api.deepseek.com/v1") ?: "https://api.deepseek.com/v1"
+            else prefs.getString("local_endpoint", "http://localhost:11434") ?: "http://localhost:11434"
         val apiKey = prefs.getString("api_key", "") ?: ""
         val model = prefs.getString("model", "deepseek-v4-flash") ?: "deepseek-v4-flash"
         return Triple(endpoint, apiKey, model)
@@ -48,24 +47,17 @@ class HermesLLMProvider @Inject constructor(
 
     override suspend fun explain(componentId: String, codeLines: List<String>): Flow<ExplanationChunk> = flow {
         val (endpoint, apiKey, model) = getConfig()
-        val prompt = "You are a CS336 tutor. Explain code for '$componentId' line by line.\n" +
-            codeLines.joinToString("\n") { it }
+        val prompt = "Explain code for $componentId line by line:\n" + codeLines.joinToString("\n")
         val result = callAPI(endpoint, apiKey, model, prompt)
         emit(ExplanationChunk(result, true))
     }
 
     override suspend fun judge(componentId: String, userCode: String, expectedCode: String): JudgeResult {
         val (endpoint, apiKey, model) = getConfig()
-        val prompt = "Compare code for '$componentId'. Expected:\n$expectedCode\n\nStudent:\n$userCode\n\nScore 0-100. Return ONLY: SCORE:number\nPASSED:true/false\nFEEDBACK:brief text"
+        val prompt = "Compare:\nExpected:\n$expectedCode\n\nStudent:\n$userCode\n\nReply PASS or FAIL with feedback."
         val result = callAPI(endpoint, apiKey, model, prompt)
-        return try {
-            val score = result.lines().find { it.startsWith("SCORE:") }?.substringAfter(":")?.trim()?.toFloatOrNull() ?: 70f
-            val passed = result.lines().find { it.startsWith("PASSED:") }?.substringAfter(":")?.trim() == "true"
-            val fb = result.lines().find { it.startsWith("FEEDBACK:") }?.substringAfter(":")?.trim() ?: "Evaluated"
-            JudgeResult(score / 100f, passed, fb, emptyList())
-        } catch (e: Exception) {
-            JudgeResult(0.7f, true, "Accepted (parse error)", emptyList())
-        }
+        val passed = result.contains("PASS") && !result.contains("FAIL")
+        return JudgeResult(if (passed) 1.0f else 0.5f, passed, result.take(200), emptyList())
     }
 
     override suspend fun answer(question: String, context: String): Flow<ExplanationChunk> {
@@ -83,7 +75,8 @@ class HermesLLMProvider @Inject constructor(
             val url = "${endpoint.trimEnd('/')}/chat/completions"
             val body = JSONObject().apply {
                 put("model", model)
-                put("messages", JSONArray().put(JSONObject().apply { put("role", "user"); put("content", prompt) }))
+                val msg = JSONObject(); msg.put("role", "user"); msg.put("content", prompt)
+                put("messages", JSONArray().put(msg))
                 put("temperature", 0.3); put("max_tokens", 2048)
             }
             val request = Request.Builder().url(url)
