@@ -48,7 +48,8 @@ fun SplitScreenTutorScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-        LaunchedEffect(componentId) {
+        val lang = (LocalContext.current.getSharedPreferences("app_settings", 0).getString("language", "en") ?: "en") == "zh"
+    LaunchedEffect(componentId, lang) {
         viewModel.initialize(componentId)
     }
 
