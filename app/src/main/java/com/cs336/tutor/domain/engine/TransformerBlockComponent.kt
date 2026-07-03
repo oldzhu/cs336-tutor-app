@@ -8,7 +8,7 @@ object TransformerBlockComponent {
         description = "Assembles RMSNorm, Attention, and FFN into a complete decoder-only Transformer block with residual connections.",
         prerequisites = listOf("ffn"),
         codeLines = listOf(
-            CodeLineStub(1, "import torch.nn as nn", "", isEditable = false),
+            CodeLineStub(1, "import torch.nn as nn", "Import PyTorch neural network module."),
             CodeLineStub(2, "from rmsnorm import RMSNorm", "Import our RMSNorm implementation.", isEditable = false),
             CodeLineStub(3, "from attention import Attention", "Import our Attention implementation.", isEditable = false),
             CodeLineStub(4, "from ffn import FeedForward", "Import our FFN implementation.", isEditable = false),
@@ -16,7 +16,7 @@ object TransformerBlockComponent {
                 "The complete building block of a decoder-only Transformer. Each block transforms hidden states through attention + FFN."),
             CodeLineStub(7, "def __init__(self, dim, n_heads):",
                 "Initialize all sub-components: 2 RMSNorm layers, 1 Attention, 1 FFN."),
-            CodeLineStub(8, "super().__init__()", "", isEditable = false),
+            CodeLineStub(8, "super().__init__()", "Initialize nn.Module — registers all sub-modules and parameters."),
             CodeLineStub(9, "self.attention = Attention(dim, n_heads)", "Multi-head self-attention sub-layer."),
             CodeLineStub(10, "self.feed_forward = FeedForward(dim)", "SwiGLU feed-forward sub-layer."),
             CodeLineStub(11, "self.attention_norm = RMSNorm(dim)",

@@ -35,6 +35,8 @@ object ComponentExplanationsZh {
     )
     
     val attention = mapOf(
+        6 to "初始化 nn.Module — 注册所有子模块和参数。",
+        1 to "导入 PyTorch 神经网络模块。",
         1 to "导入 PyTorch 的 nn 模块。",
         2 to "导入 functional API（softmax 用）。",
         4 to "多头因果自注意力模块。",
@@ -61,6 +63,8 @@ object ComponentExplanationsZh {
     )
     
     val ffn = mapOf(
+        6 to "初始化 nn.Module — 注册所有子模块和参数。",
+        1 to "导入 PyTorch 神经网络模块。",
         1 to "导入 PyTorch nn 模块。",
         2 to "导入 F（SiLU 在 F.silu() 中）。",
         4 to "SwiGLU 前馈网络：扩展到 hidden_dim，应用门控激活，投影回原始维度。",
@@ -75,6 +79,8 @@ object ComponentExplanationsZh {
     )
     
     val transformer = mapOf(
+        8 to "初始化 nn.Module — 注册所有子模块和参数。",
+        1 to "导入 PyTorch 神经网络模块。",
         1 to "导入 PyTorch nn 模块。",
         2 to "导入 RMSNorm 实现。",
         3 to "导入 Attention 实现。",
@@ -148,6 +154,8 @@ object ComponentExplanationsZh {
 
 
     val embedding = mapOf(
+        5 to "初始化 nn.Module — 注册所有子模块和参数。",
+        1 to "导入 PyTorch 神经网络模块，提供 nn.Module 和 nn.Embedding。",
         3 to "Token 嵌入层：将整数 token ID 映射为 dim 维稠密向量。",
         4 to "vocab_size=唯一 token 数。dim=嵌入维度（7B 模型为 4096）。",
         6 to "关键行：PyTorch 内置 Embedding 查找。存储 (vocab_size,dim) 权重矩阵。",
@@ -156,6 +164,7 @@ object ComponentExplanationsZh {
     )
 
     val lmhead = mapOf(
+        5 to "初始化 nn.Module — 注册所有子模块和参数。",
         1 to "导入 PyTorch 神经网络模块，提供 nn.Module 和 nn.Linear。",
         3 to "最后一层：隐藏状态→token 预测。(batch,seq,dim)→(batch,seq,vocab_size)。",
         4 to "dim=模型维度，vocab_size=词汇表大小。",
@@ -165,6 +174,7 @@ object ComponentExplanationsZh {
     )
 
     val optimizer = mapOf(
+        7 to "注释：下面的三个方程描述 Adam 如何更新参数。",
         1 to "导入 PyTorch——提供张量操作和自动微分。",
         3 to "关键行：AdamW——动量+自适应学习率+解耦权重衰减。lr=3e-4。",
         5 to "经典 Adam（无权重衰减）。较简单但对大模型效果较差。",
@@ -174,6 +184,7 @@ object ComponentExplanationsZh {
     )
 
     val training = mapOf(
+        13 to "关闭 cross_entropy() 调用。完成损失计算。",
         1 to "导入 PyTorch——提供张量操作和自动微分。",
         4 to "一个完整训练步骤：前向→损失→反向→更新。",
         6 to "关键：反向传播前清零所有梯度。忘记此步会导致梯度累积！",

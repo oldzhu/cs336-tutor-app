@@ -15,7 +15,7 @@ object OptimizerComponent {
             CodeLineStub(5, "optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)",
                 "Classic Adam (without weight decay). Simpler but less effective for large models.",
                 isEditable = false),
-            CodeLineStub(7, "# Adam update rule:", "", isEditable = false),
+            CodeLineStub(7, "# Adam update rule:", "Comment: the three equations below describe how Adam updates parameters."),
             CodeLineStub(8, "# m_t = beta1 * m_{t-1} + (1-beta1) * g_t  (momentum)",
                 "First moment (mean of gradients). Smooths noisy gradients — like a rolling average.", isEditable = false),
             CodeLineStub(9, "# v_t = beta2 * v_{t-1} + (1-beta2) * g_t²  (RMS)",

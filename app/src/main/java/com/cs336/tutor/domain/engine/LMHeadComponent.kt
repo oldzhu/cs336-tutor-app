@@ -13,7 +13,7 @@ object LMHeadComponent {
                 "The final layer that converts hidden states to token predictions. Maps (batch, seq, dim) → (batch, seq, vocab_size)."),
             CodeLineStub(4, "def __init__(self, dim, vocab_size):",
                 "dim = model dimension. vocab_size = number of tokens in vocabulary."),
-            CodeLineStub(5, "super().__init__()", "", isEditable = false),
+            CodeLineStub(5, "super().__init__()", "Initialize nn.Module — registers all sub-modules and parameters."),
             CodeLineStub(6, "self.lm_head = nn.Linear(dim, vocab_size, bias=False)",
                 "KEY LINE: Linear projection from model dimension to vocabulary size. bias=False (modern practice). Weight tying: often shares weights with Embedding layer."),
             CodeLineStub(8, "def forward(self, x):",
