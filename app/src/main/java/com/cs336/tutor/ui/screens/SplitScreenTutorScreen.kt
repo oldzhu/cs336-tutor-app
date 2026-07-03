@@ -5,6 +5,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.background
@@ -92,6 +93,7 @@ fun SplitScreenTutorScreen(
                     code = uiState.userCode,
                     onCodeChange = viewModel::onCodeChange,
                     onJudge = viewModel::onJudge,
+                    onJudgeComponent = viewModel::onJudgeComponent,
                     judgeResult = uiState.judgeResult,
                     isLoading = uiState.isLoading,
                     questionText = uiState.questionText,
@@ -421,6 +423,7 @@ fun CodeEditorPanel(
     code: String,
     onCodeChange: (String) -> Unit,
     onJudge: () -> Unit,
+    onJudgeComponent: () -> Unit = {},
     judgeResult: JudgeResult?,
     isLoading: Boolean,
     questionText: String,
@@ -462,7 +465,16 @@ fun CodeEditorPanel(
             )
         )
         
-        // Judge button + results
+        // Judge Component button (evaluates ALL lines)
+        OutlinedButton(
+            onClick = onJudgeComponent,
+            enabled = !isLoading,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
+        ) {
+            Text("🧪 Judge Component", style = MaterialTheme.typography.labelMedium)
+        }
+        Spacer(Modifier.height(4.dp))
+        // Judge single-line button
         Button(
             onClick = onJudge,
             enabled = !isLoading,

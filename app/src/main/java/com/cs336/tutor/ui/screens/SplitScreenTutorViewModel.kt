@@ -43,6 +43,7 @@ class SplitScreenTutorViewModel @Inject constructor(
 
     private var allCodeLines: List<CodeLineStub> = emptyList()
     private var isChinese: Boolean = false
+    private val userCodeMap = mutableMapOf<Int, String>()
 
     fun initialize(componentId: String) {
         if (_uiState.value.componentId == componentId && allCodeLines.isNotEmpty()) return
@@ -102,7 +103,24 @@ class SplitScreenTutorViewModel @Inject constructor(
         if (prevIndex >= 0) navigateToLine(prevIndex)
     }
 
-    fun onCodeChange(newCode: String) { _uiState.value = _uiState.value.copy(userCode = newCode) }
+    fun onCodeChange(newCode: String) {
+        _uiState.value = _uiState.value.copy(userCode = newCode)
+        userCodeMap[_uiState.value.currentLineIndex] = newCode
+    }
+
+    fun onJudgeComponent() {
+        if (userCodeMap.isEmpty()) return
+        _uiState.value = _uiState.value.copy(isLoading = true, judgeResult = null)
+        viewModelScope.launch {
+            try {
+                val fullCode = allCodeLines.mapIndexed { idx, line -> userCodeMap[idx] ?: line.code }.joinToString("\n")
+                val result = llmProvider.judge(_uiState.value.componentId, fullCode, allCodeLines.joinToString("\n") { it.code })
+                _uiState.value = _uiState.value.copy(judgeResult = result, isLoading = false)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(judgeResult = JudgeResult(score = 0f, passed = false, feedback = "Error: ${e.message}"), isLoading = false)
+            }
+        }
+    }
 
     fun onJudge() {
         val state = _uiState.value
