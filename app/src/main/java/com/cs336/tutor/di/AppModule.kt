@@ -21,9 +21,5 @@ object AppModule {
     @Provides @Singleton
     fun provideTutorEngine(engine: TutorEngineImpl): TutorEngine = engine
     @Provides @Singleton
-    fun provideLLMProvider(@ApplicationContext context: Context): LLMProvider {
-        val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
-        val hasKey = (prefs.getString("api_key", "") ?: "").isNotEmpty()
-        return if (hasKey) DeepSeekLLMProvider(context) else MockLLMProvider()
-    }
+    fun provideLLMProvider(@ApplicationContext context: Context): LLMProvider = DeepSeekLLMProvider(context)
 }

@@ -41,6 +41,11 @@ class DeepSeekLLMProvider @Inject constructor(
         return Triple(ep, key, model)
     }
 
+    private fun hasKey(): Boolean {
+        val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        return (prefs.getString("api_key", "") ?: "").isNotEmpty()
+    }
+
     override suspend fun explain(componentId: String, codeLines: List<String>): Flow<ExplanationChunk> = flow {
         val (ep, key, model) = getConfig()
         val prompt = "Explain each line of $componentId:\n" + codeLines.joinToString("\n")
@@ -48,6 +53,7 @@ class DeepSeekLLMProvider @Inject constructor(
     }
 
     override suspend fun judge(componentId: String, userCode: String, expectedCode: String): JudgeResult {
+        if (!hasKey()) return JudgeResult(1.0f, true, "Configure API key in Settings for real evaluation.")
         val (ep, key, model) = getConfig()
         val prompt = "Compare code for $componentId.\nExpected:\n$expectedCode\n\nStudent:\n$userCode\n\nReply PASS or FAIL with short feedback."
         val result: String = chat(ep, key, model, prompt)
@@ -56,6 +62,7 @@ class DeepSeekLLMProvider @Inject constructor(
     }
 
     override suspend fun answer(question: String, ctx: String): Flow<ExplanationChunk> {
+        if (!hasKey()) return flowOf(ExplanationChunk("Configure API key in Settings to enable Q&A."))
         val (ep, key, model) = getConfig()
         val result = chat(ep, key, model, "Context: $ctx\nQ: $question")
         return flowOf(ExplanationChunk(result, true))
