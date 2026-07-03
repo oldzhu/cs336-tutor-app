@@ -155,22 +155,17 @@ object ComponentExplanationsZh {
     )
 
     fun getHints(componentId: String): Map<Int, List<String>> = when (componentId) {
-        "bpe" -> bpeHints
-        "rmsnorm" -> rmsnormHints
-        "rope" -> ropeHints
-        "attention" -> attentionHints
-        "ffn" -> ffnHints
-        "transformer" -> transformerHints
+        "bpe" -> bpeHints; "rmsnorm" -> rmsnormHints; "rope" -> ropeHints
+        "attention" -> attentionHints; "ffn" -> ffnHints
+        "transformer" -> transformerHints; "lmhead" -> lmheadHints; "training" -> trainingHints
         else -> emptyMap()
     }
 
 fun getExplanations(componentId: String): Map<Int, String> = when (componentId) {
-        "bpe" -> BPEExplanationsZh.explanations
-        "rmsnorm" -> rmsnorm
-        "rope" -> rope
-        "attention" -> attention
-        "ffn" -> ffn
-        "transformer" -> transformer
+        "bpe" -> BPEExplanationsZh.explanations; "embedding" -> embedding
+        "rmsnorm" -> rmsnorm; "rope" -> rope; "attention" -> attention
+        "ffn" -> ffn; "transformer" -> transformer
+        "lmhead" -> lmhead; "optimizer" -> optimizer; "training" -> training
         else -> emptyMap()
     }
 }
