@@ -72,11 +72,11 @@ class DashboardViewModel @Inject constructor(
 
             val components = listOf(
                 TutorComponent(id = "bpe", name = compNames["bpe"]!!, description = compDescs["bpe"]!!, isLocked = false),
-                TutorComponent(id = "rmsnorm", name = compNames["rmsnorm"]!!, description = compDescs["rmsnorm"]!!, isLocked = true),
-                TutorComponent(id = "rope", name = compNames["rope"]!!, description = compDescs["rope"]!!, isLocked = true),
-                TutorComponent(id = "attention", name = compNames["attention"]!!, description = compDescs["attention"]!!, isLocked = true),
-                TutorComponent(id = "ffn", name = compNames["ffn"]!!, description = compDescs["ffn"]!!, isLocked = true),
-                TutorComponent(id = "transformer", name = compNames["transformer"]!!, description = compDescs["transformer"]!!, isLocked = true)
+                TutorComponent(id = "rmsnorm", name = compNames["rmsnorm"]!!, description = compDescs["rmsnorm"]!!, isLocked = false),
+                TutorComponent(id = "rope", name = compNames["rope"]!!, description = compDescs["rope"]!!, isLocked = false),
+                TutorComponent(id = "attention", name = compNames["attention"]!!, description = compDescs["attention"]!!, isLocked = false),
+                TutorComponent(id = "ffn", name = compNames["ffn"]!!, description = compDescs["ffn"]!!, isLocked = false),
+                TutorComponent(id = "transformer", name = compNames["transformer"]!!, description = compDescs["transformer"]!!, isLocked = false)
             )
             _uiState.value = DashboardUiState(components = components, isLoading = false)
         }
