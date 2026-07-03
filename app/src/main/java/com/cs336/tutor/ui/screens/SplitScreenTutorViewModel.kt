@@ -3,7 +3,7 @@ package com.cs336.tutor.ui.screens
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cs336.tutor.domain.engine.BPEExplanationsZh
+import com.cs336.tutor.domain.engine.ComponentExplanationsZh
 import com.cs336.tutor.domain.engine.TutorEngine
 import com.cs336.tutor.domain.model.CodeLineStub
 import com.cs336.tutor.domain.model.JudgeResult
@@ -54,8 +54,9 @@ class SplitScreenTutorViewModel @Inject constructor(
                 val component = tutorEngine.loadComponent(componentId)
                 allCodeLines = component.codeLines
                 if (isChinese) {
+                    val zhExps = ComponentExplanationsZh.getExplanations(componentId)
                     allCodeLines = allCodeLines.map { line ->
-                        val zhExp = BPEExplanationsZh.explanations[line.lineNumber]
+                        val zhExp = zhExps[line.lineNumber]
                         if (zhExp != null) line.copy(explanationZh = zhExp) else line
                     }
                 }

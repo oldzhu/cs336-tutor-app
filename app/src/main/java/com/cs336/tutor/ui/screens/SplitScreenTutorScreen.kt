@@ -2,6 +2,11 @@ package com.cs336.tutor.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -75,7 +80,8 @@ fun SplitScreenTutorScreen(
                     currentLine = uiState.currentLine,
                     explanation = uiState.explanation,
                     onPrevious = viewModel::previousLine,
-                    onNext = viewModel::nextLine
+                    onNext = viewModel::nextLine,
+                    onNavigateToLine = viewModel::navigateToLine
                 )
                 VerticalDivider()
                 CodeEditorPanel(
@@ -104,11 +110,14 @@ fun AIExplanationPanel(
     currentLine: CodeLine?,
     explanation: String,
     onPrevious: () -> Unit,
-    onNext: () -> Unit
+    onNext: () -> Unit,
+    onNavigateToLine: (Int) -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
     val lineCount = codeLines.size
     var showAllLines by remember { mutableStateOf(false) }
+    var showLineJump by remember { mutableStateOf(false) }
+    var jumpLineNumber by remember { mutableStateOf("") }
     
     // Auto-repeat: type → pause → clear → retype loop
     var repeatTrigger by remember { mutableStateOf(0) }
@@ -165,9 +174,40 @@ fun AIExplanationPanel(
                 Text(
                     text = "Line ${currentLine?.lineNumber ?: "?"} of $lineCount",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable { showLineJump = true }
                 )
             }
+        }
+
+        // Line jump dialog
+        if (showLineJump) {
+            AlertDialog(
+                onDismissRequest = { showLineJump = false },
+                title = { Text("Go to line") },
+                text = {
+                    OutlinedTextField(
+                        value = jumpLineNumber,
+                        onValueChange = { if (it.all { c -> c.isDigit() }) jumpLineNumber = it },
+                        label = { Text("Line number (1-$lineCount)") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        val num = jumpLineNumber.toIntOrNull()
+                        if (num != null && num in 1..lineCount) {
+                            onNavigateToLine(num - 1)
+                            showLineJump = false
+                            jumpLineNumber = ""
+                        }
+                    }) { Text("Go") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showLineJump = false; jumpLineNumber = "" }) { Text("Cancel") }
+                }
+            )
         }
 
         // Navigation row
