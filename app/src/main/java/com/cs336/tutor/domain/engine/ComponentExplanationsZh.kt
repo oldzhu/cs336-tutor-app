@@ -154,6 +154,54 @@ object ComponentExplanationsZh {
         18 to listOf("输出现在可以被输入到下一个 TransformerBlock")
     )
 
+
+    val embedding = mapOf(
+        3 to "Token 嵌入层：将整数 token ID 映射为 dim 维稠密向量，捕获语义含义。",
+        4 to "vocab_size=唯一 token 数。dim=嵌入维度（7B 模型为 4096）。",
+        6 to "关键行：PyTorch 内置 Embedding 查找。存储 (vocab_size,dim) 权重矩阵。",
+        8 to "前向传播：x 为 token 索引 (batch,seq_len)，返回嵌入 (batch,seq_len,dim)。",
+        9 to "按 token ID 查找嵌入向量。训练时梯度通过被选中行反向传播。"
+    )
+
+    val lmhead = mapOf(
+        3 to "最后一层：隐藏状态→token 预测。(batch,seq,dim)→(batch,seq,vocab_size)。",
+        4 to "dim=模型维度，vocab_size=词汇表大小。",
+        6 to "关键行：从模型维度到词汇表的线性投影。bias=False（现代做法）。常与 Embedding 层共享权重。",
+        8 to "前向传播：将每个位置的隐藏状态投影到词汇表 logits。",
+        9 to "输出 (batch,seq,vocab_size)。每个位置对每个 token 有一个分数——最高分即预测词。"
+    )
+
+    val optimizer = mapOf(
+        3 to "关键行：AdamW——动量+自适应学习率+解耦权重衰减。lr=3e-4（7B 模型标准）。betas 控制动量衰减。weight_decay=0.1 正则化。",
+        5 to "经典 Adam（无权重衰减）。较简单但对大模型效果较差。",
+        8 to "第一矩（梯度均值）：平滑噪声梯度，类似滚动平均。",
+        9 to "第二矩（未中心化方差）：为每个参数自适应调整学习率。",
+        10 to "参数更新：动量除以自适应学习率的平方根。每个参数有独立的等效学习率。"
+    )
+
+    val training = mapOf(
+        4 to "一个完整训练步骤：前向→损失→反向→更新。batch=(input_ids,target_ids)。",
+        5 to "设置模型为训练模式，启用 dropout 等。",
+        6 to "关键：反向传播前清零所有梯度。忘记此步会导致梯度累积——常见 bug！",
+        8 to "前向传播通过整个模型。logits 形状：(batch,seq,vocab_size)——每位置预测下一 token。",
+        10 to "关键行：标准语言建模损失。比较预测分布与实际下一 token。",
+        11 to "展平 logits：(batch*seq,vocab_size)。独立预测每个 token。",
+        12 to "展平目标：(batch*seq,)。必须匹配 logits 第一维。",
+        15 to "反向传播：通过自动微分计算所有参数的梯度。",
+        16 to "应用梯度：使用优化器规则（Adam/SGD 等）更新所有参数。",
+        17 to "返回标量损失值用于日志记录和监控。"
+    )
+
+    val lmheadHints = mapOf(
+        6 to listOf("权重共享：LM Head 权重通常与 Embedding 共享以节省参数")
+    )
+
+    val trainingHints = mapOf(
+        6 to listOf("忘记 zero_grad() 是常见 bug——loss 不会下降"),
+        8 to listOf("logits 形状 (batch,seq,vocab_size)——每个位置预测下一个 token"),
+        11 to listOf("view(-1, vocab_size) 展平批次和序列维度")
+    )
+
     fun getHints(componentId: String): Map<Int, List<String>> = when (componentId) {
         "bpe" -> bpeHints; "rmsnorm" -> rmsnormHints; "rope" -> ropeHints
         "attention" -> attentionHints; "ffn" -> ffnHints
