@@ -33,12 +33,10 @@ class DeepSeekLLMProvider @Inject constructor(
 
     override val name: String = "DeepSeek"
 
-    private fun getConfig(): Triple<String, String, String> {
+        private fun getConfig(): Triple<String, String, String> {
         val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
         val ep = prefs.getString("api_endpoint", "https://api.deepseek.com/v1") ?: "https://api.deepseek.com/v1"
-        val key = (prefs.getString("api_key", "") ?: "").replace("
-", "").replace("
-", "").replace(" ", "").trim()
+        val key = (prefs.getString("api_key", "") ?: "").filter { !it.isWhitespace() }
         val model = prefs.getString("model", "deepseek-v4-flash") ?: "deepseek-v4-flash"
         return Triple(ep, key, model)
     }
