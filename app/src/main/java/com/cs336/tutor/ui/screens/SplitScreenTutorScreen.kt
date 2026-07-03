@@ -237,6 +237,7 @@ fun AIExplanationPanel(
                             Text("📐 Formula / 公式", style = MaterialTheme.typography.titleSmall)
                             Spacer(Modifier.height(4.dp))
                             Text(content.formula, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
+                            Spacer(Modifier.height(12.dp)); Text("Purpose", style = MaterialTheme.typography.titleSmall); Spacer(Modifier.height(4.dp)); Text(content.purpose, style = MaterialTheme.typography.bodySmall); Spacer(Modifier.height(12.dp)); Text("Usage", style = MaterialTheme.typography.titleSmall); Spacer(Modifier.height(4.dp)); Text(content.usage, style = MaterialTheme.typography.bodySmall); Spacer(Modifier.height(12.dp)); Text("Without", style = MaterialTheme.typography.titleSmall); Spacer(Modifier.height(4.dp)); Text(content.without, style = MaterialTheme.typography.bodySmall)
                             Spacer(Modifier.height(12.dp))
                             Text("⚙️ Algorithm / 算法", style = MaterialTheme.typography.titleSmall)
                             Spacer(Modifier.height(4.dp))
