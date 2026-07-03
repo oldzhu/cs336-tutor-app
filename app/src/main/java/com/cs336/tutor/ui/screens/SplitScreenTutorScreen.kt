@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import com.cs336.tutor.R
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -121,6 +122,7 @@ fun AIExplanationPanel(
 ) {
     val scrollState = rememberScrollState()
     val lineCount = codeLines.size
+    val ctx = LocalContext.current
     var showAllLines by remember { mutableStateOf(false) }
     var showLineJump by remember { mutableStateOf(false) }
     var jumpLineNumber by remember { mutableStateOf("") }
@@ -226,7 +228,7 @@ fun AIExplanationPanel(
         // Overview dialog
         if (showOverview) {
             val overview = ComponentOverviews.getOverview(componentId)
-            val isZh = java.util.Locale.getDefault().language == "zh"
+            val isZh = (ctx.getSharedPreferences("app_settings", 0).getString("language", "en") ?: "en") == "zh"
             if (overview != null) {
                 val content = if (isZh) overview.zh else overview.en
                 AlertDialog(
