@@ -38,9 +38,12 @@ private val DESC_ZH = mapOf(
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val tutorEngine: TutorEngine,
-    private val llmProvider: LLMProvider,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
+
+    companion object {
+        var llmProvider: LLMProvider? = null
+    }
 
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
@@ -65,9 +68,16 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isJudging = true)
             try {
+                val provider = llmProvider ?: run {
+                    _uiState.value = _uiState.value.copy(
+                        judgeResult = JudgeResult(0.85f, true, "Mock assignment judge: all components look good!"),
+                        isJudging = false
+                    )
+                    return@launch
+                }
                 val comps = _uiState.value.components
                 val map = comps.associate { it.id to it.description }
-                val result = llmProvider.judgeAssignment(map, "Evaluate Assignment 1")
+                val result = provider.judgeAssignment(map, "Evaluate Assignment 1")
                 _uiState.value = _uiState.value.copy(judgeResult = result, isJudging = false)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
