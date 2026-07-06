@@ -60,6 +60,7 @@ class MockLLMProvider @Inject constructor() : LLMProvider {
         )
     }
 
+    override suspend fun judgeAssignment(components: Map<String, String>, question: String): JudgeResult { return JudgeResult(0.85f, true, "Mock: " + components.size + " components.", suggestions = listOf("Add comments")) }
     override suspend fun generateComponent(spec: ComponentSpec): TutorComponent {
         // In mock mode, return the spec itself as a component
         return TutorComponent(

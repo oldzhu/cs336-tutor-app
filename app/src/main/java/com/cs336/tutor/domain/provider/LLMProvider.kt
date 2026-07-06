@@ -28,6 +28,12 @@ interface LLMProvider {
 
     /** Dynamically generate a new component tutor spec */
     suspend fun generateComponent(spec: ComponentSpec): TutorComponent
+
+    /** Judge entire assignment — all components together */
+    suspend fun judgeAssignment(
+        components: Map<String, String>,
+        question: String
+    ): JudgeResult
 }
 
 data class ExplanationChunk(

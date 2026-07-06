@@ -12,9 +12,9 @@ class RoPEComponentTest {
         val code = RoPEComponent.spec.codeLines.joinToString("\n") { it.code }
         assertTrue(code.contains("class") || code.contains("def"))
     }
-    @Test fun `rotary computation uses sin and cos`() {
+    @Test fun `rotary computation uses polar`() {
         val code = RoPEComponent.spec.codeLines.joinToString("\n") { it.code }
-        assertTrue(code.contains("sin") && code.contains("cos"))
+        assertTrue(code.contains("polar") || code.contains("freqs_cis"))
     }
     @Test fun `has exercises`() { assertTrue(RoPEComponent.spec.exercises.isNotEmpty()) }
     @Test fun `has judge criteria`() { assertTrue(RoPEComponent.spec.judgeCriteria.isNotEmpty()) }

@@ -4,62 +4,29 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class RMSNormComponentTest {
-
-    @Test
-    fun `spec has correct id`() {
-        assertEquals("rmsnorm", RMSNormComponent.spec.id)
+    @Test fun testId() { assertEquals("rmsnorm", RMSNormComponent.spec.id) }
+    @Test fun testName() { assertEquals("RMSNorm", RMSNormComponent.spec.name) }
+    @Test fun testLines() { assertTrue(RMSNormComponent.spec.codeLines.isNotEmpty()) }
+    @Test fun testClassDef() {
+        val code = RMSNormComponent.spec.codeLines.joinToString("\n") { it.code }
+        assertTrue(code.contains("class RMSNorm") && code.contains("nn.Module"))
     }
-
-    @Test
-    fun `spec has correct name`() {
-        assertEquals("RMSNorm", RMSNormComponent.spec.name)
+    @Test fun testWeightParam() {
+        val code = RMSNormComponent.spec.codeLines.joinToString("\n") { it.code }
+        assertTrue(code.contains("nn.Parameter") && code.contains("torch.ones"))
     }
-
-    @Test
-    fun `spec has code lines`() {
-        assertTrue(RMSNormComponent.spec.codeLines.isNotEmpty())
+    @Test fun testEps() {
+        val code = RMSNormComponent.spec.codeLines.joinToString("\n") { it.code }
+        assertTrue(code.contains("eps"))
     }
-
-    @Test
-    fun `class definition is in code lines`() {
-        val allCode = RMSNormComponent.spec.codeLines.joinToString("\n") { it.code }
-        assertTrue(allCode.contains("class RMSNorm"))
-        assertTrue(allCode.contains("nn.Module"))
+    @Test fun testForward() {
+        val code = RMSNormComponent.spec.codeLines.joinToString("\n") { it.code }
+        assertTrue(code.contains("forward"))
     }
-
-    @Test
-    fun `weight parameter is nn.Parameter of ones`() {
-        val allCode = RMSNormComponent.spec.codeLines.joinToString("\n") { it.code }
-        assertTrue(allCode.contains("nn.Parameter"))
-        assertTrue(allCode.contains("torch.ones"))
+    @Test fun testRmsComp() {
+        val code = RMSNormComponent.spec.codeLines.joinToString("\n") { it.code }
+        assertTrue(code.contains("pow") || code.contains("rsqrt") || code.contains("sqrt"))
     }
-
-    @Test
-    fun `epsilon is defined in init`() {
-        val allCode = RMSNormComponent.spec.codeLines.joinToString("\n") { it.code }
-        assertTrue(allCode.contains("eps"))
-    }
-
-    @Test
-    fun `forward method exists`() {
-        val allCode = RMSNormComponent.spec.codeLines.joinToString("\n") { it.code }
-        assertTrue(allCode.contains("forward"))
-    }
-
-    @Test
-    fun `rms computation uses pow and rsqrt`() {
-        val allCode = RMSNormComponent.spec.codeLines.joinToString("\n") { it.code }
-        assertTrue(allCode.contains("pow") || allCode.contains("square") || allCode.contains("**"))
-        assertTrue(allCode.contains("rsqrt") || allCode.contains("sqrt"))
-    }
-
-    @Test
-    fun `spec has exercises`() {
-        assertTrue(RMSNormComponent.spec.exercises.isNotEmpty())
-    }
-
-    @Test
-    fun `spec has judge criteria`() {
-        assertTrue(RMSNormComponent.spec.judgeCriteria.isNotEmpty())
-    }
+    @Test fun testExercises() { assertTrue(RMSNormComponent.spec.exercises.isNotEmpty()) }
+    @Test fun testCriteria() { assertTrue(RMSNormComponent.spec.judgeCriteria.isNotEmpty()) }
 }

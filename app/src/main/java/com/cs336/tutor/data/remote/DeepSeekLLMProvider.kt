@@ -65,6 +65,7 @@ class DeepSeekLLMProvider @Inject constructor(
         return flowOf(ExplanationChunk(result, true))
     }
 
+    override suspend fun judgeAssignment(components: Map<String, String>, question: String): JudgeResult { if (!hasKey()) return JudgeResult(1.0f, true, "Need API key."); val (ep, key, model) = getConfig(); val s = components.entries.joinToString(" | ") { it.key + ":" + it.value.take(100) }; val r: String = chat(ep, key, model, "Evaluate: " + question + " " + s); val p = r.contains("PASS") && !r.contains("FAIL"); return JudgeResult(if (p) 1.0f else 0.5f, p, r.take(500)) }
     override suspend fun generateComponent(spec: ComponentSpec): TutorComponent {
         return TutorComponent(spec.id, spec.name, spec.description, false, spec.prerequisites, spec.codeLines)
     }
