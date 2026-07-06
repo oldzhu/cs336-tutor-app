@@ -18,3 +18,9 @@
 # Keep Retrofit
 -keep class retrofit2.** { *; }
 -keepattributes Exceptions
+
+# Keep Judge Assignment methods
+-keep class com.cs336.tutor.ui.screens.DashboardViewModel { *; }
+-keep class com.cs336.tutor.ui.screens.DashboardScreen { *; }
+-keep class com.cs336.tutor.ui.screens.DashboardUiState { *; }
+-keep class com.cs336.tutor.domain.provider.LLMProvider { *; }

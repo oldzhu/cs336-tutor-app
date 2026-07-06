@@ -68,20 +68,20 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isJudging = true)
             try {
-                val provider = llmProvider ?: run {
-                    _uiState.value = _uiState.value.copy(
-                        judgeResult = JudgeResult(0.85f, true, "Mock assignment judge: all components look good!"),
-                        isJudging = false
-                    )
-                    return@launch
+                val provider = llmProvider
+                val result = if (provider != null) {
+                    val comps = _uiState.value.components
+                    val map = comps.associate { it.id to it.description }
+                    provider.judgeAssignment(map, "Evaluate Assignment 1")
+                } else {
+                    JudgeResult(0.85f, true, "Mock: " + _uiState.value.components.size + " components look good!")
                 }
-                val comps = _uiState.value.components
-                val map = comps.associate { it.id to it.description }
-                val result = provider.judgeAssignment(map, "Evaluate Assignment 1")
                 _uiState.value = _uiState.value.copy(judgeResult = result, isJudging = false)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
-                    judgeResult = JudgeResult(0f, false, e.message ?: "Error"), isJudging = false)
+                    judgeResult = JudgeResult(0f, false, e.message ?: "Error"),
+                    isJudging = false
+                )
             }
         }
     }
