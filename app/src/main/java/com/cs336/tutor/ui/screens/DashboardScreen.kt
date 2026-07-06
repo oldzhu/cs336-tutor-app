@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import com.cs336.tutor.R
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.cs336.tutor.domain.model.JudgeResult
 import com.cs336.tutor.ui.components.ComponentCard
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -24,8 +23,6 @@ fun DashboardScreen(
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
-    // Refresh components on re-entry (handles language change without full restart)
     LaunchedEffect(Unit) { viewModel.refresh() }
 
     Scaffold(
@@ -41,32 +38,19 @@ fun DashboardScreen(
         }
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
+            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp)
         ) {
-            Text(
-                text = stringResource(R.string.dashboard_title),
-                style = MaterialTheme.typography.headlineSmall
-            )
+            Text(stringResource(R.string.dashboard_title), style = MaterialTheme.typography.headlineSmall)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = stringResource(R.string.dashboard_subtitle),
-                style = MaterialTheme.typography.bodyLarge
-            )
+            Text(stringResource(R.string.dashboard_subtitle), style = MaterialTheme.typography.bodyLarge)
             Spacer(modifier = Modifier.height(16.dp))
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(uiState.components) { component ->
-                    ComponentCard(
-                        component = component,
-                        onClick = { onNavigateToTutor(component.id) }
-                    )
+                    ComponentCard(component = component, onClick = { onNavigateToTutor(component.id) })
                 }
             }
+
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = { viewModel.onJudgeAssignment() },
@@ -76,16 +60,14 @@ fun DashboardScreen(
                 if (uiState.isJudging) CircularProgressIndicator(Modifier.size(16.dp))
                 else Text(stringResource(R.string.judge_assignment_button))
             }
-            AnimatedVisibility(uiState.judgeResult != null) {
-                uiState.judgeResult?.let { r ->
-                    Column {
-                        Spacer(Modifier.height(8.dp))
-                        Card(Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(12.dp)) {
-                                Text("Score: ${(r.score * 100).toInt()}%", style = MaterialTheme.typography.titleMedium)
-                                Text(r.feedback, style = MaterialTheme.typography.bodySmall)
-                            }
-                        }
+
+            if (uiState.judgeResult != null) {
+                val r = uiState.judgeResult!!
+                Spacer(Modifier.height(8.dp))
+                Card(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(12.dp)) {
+                        Text("Score: ${(r.score * 100).toInt()}%", style = MaterialTheme.typography.titleMedium)
+                        Text(r.feedback, style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
