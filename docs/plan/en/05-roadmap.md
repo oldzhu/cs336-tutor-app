@@ -2,24 +2,28 @@
 
 > **English** · [中文版](../zh/05-roadmap.md)
 
-## Active Work
-| # | Item | Status | Priority |
-|---|---|---|---|
-| 1 | Assignment-level judging | Not started | P0 |
-| 2 | JVM unit test fixes (backtick compile errors) | Not started | P1 |
-| 3 | Chaquopy Python integration | Dep in build | P1 |
-| 4 | Progress tracking UI | DB exists | P2 |
+## ✅ Completed
+| Item | Status |
+|---|---|
+| 10-component pipeline (BPE→Embed→...→Training) | ✅ |
+| Language switching (CN/EN) | ✅ |
+| Component overviews (formulas, papers) | ✅ |
+| DeepSeek LLM provider (real API) | ✅ |
+| Assignment-level judging (FAB + BottomSheet) | ✅ |
+| All code lines explained (EN + CN) | ✅ |
+| JVM unit tests passing | ✅ |
 
-## Future Features (Documented)
+## 🔜 Active Work
+| # | Item | Priority |
+|---|---|---|
+| 1 | Chat history & session context in Q&A | P0 |
+| 2 | Full code review component on Dashboard | P0 |
+| 3 | Chaquopy Python integration | P1 |
+| 4 | Progress tracking UI | P2 |
+
+## 📋 Future Features
 | Doc | Feature | Phase |
 |---|---|---|
-| `03-local-llm-mobile.md` | Local LLM on device | Research |
 | `02-dynamic-content.md` | Dynamic AI tutor content | Design |
+| `03-local-llm-mobile.md` | Local LLM on device | Research |
 | `04-multimodal-teaching.md` | Voice, animation, vision, video | Concept |
-
-## Next Phase Candidates
-1. **Run code on device** — wire Chaquopy to execute student Python
-2. **Progress dashboard** — track completed components
-3. **Exercise mode** — auto-generate coding exercises
-4. **Ollama local support** — offline LLM via llama.cpp
-5. **Full assignment workflow** — "Build Assignment 1" mode

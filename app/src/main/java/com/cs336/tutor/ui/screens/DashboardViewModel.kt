@@ -3,10 +3,10 @@ package com.cs336.tutor.ui.screens
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cs336.tutor.data.remote.DeepSeekLLMProvider
 import com.cs336.tutor.domain.engine.TutorEngine
 import com.cs336.tutor.domain.model.JudgeResult
 import com.cs336.tutor.domain.model.TutorComponent
-import com.cs336.tutor.domain.provider.LLMProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,10 +41,6 @@ class DashboardViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
-    companion object {
-        var llmProvider: LLMProvider? = null
-    }
-
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
 
@@ -68,8 +64,10 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isJudging = true)
             try {
-                val provider = llmProvider
-                val result = if (provider != null) {
+                val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+                val apiKey = (prefs.getString("api_key", "") ?: "").filter { !it.isWhitespace() }
+                val result = if (apiKey.isNotEmpty() && apiKey.startsWith("sk-")) {
+                    val provider = DeepSeekLLMProvider(context)
                     val comps = _uiState.value.components
                     val map = comps.associate { it.id to it.description }
                     provider.judgeAssignment(map, "Evaluate Assignment 1")
@@ -79,10 +77,12 @@ class DashboardViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(judgeResult = result, isJudging = false)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
-                    judgeResult = JudgeResult(0f, false, e.message ?: "Error"),
-                    isJudging = false
-                )
+                    judgeResult = JudgeResult(0f, false, e.message ?: "Error"), isJudging = false)
             }
         }
+    }
+
+    fun onJudgeResultDismissed() {
+        _uiState.value = _uiState.value.copy(judgeResult = null)
     }
 }

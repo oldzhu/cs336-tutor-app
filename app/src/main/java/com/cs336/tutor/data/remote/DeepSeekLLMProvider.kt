@@ -65,9 +65,18 @@ class DeepSeekLLMProvider @Inject constructor(
         return flowOf(ExplanationChunk(result, true))
     }
 
-    override suspend fun judgeAssignment(components: Map<String, String>, question: String): JudgeResult { if (!hasKey()) return JudgeResult(1.0f, true, "Need API key."); val (ep, key, model) = getConfig(); val s = components.entries.joinToString(" | ") { it.key + ":" + it.value.take(100) }; val r: String = chat(ep, key, model, "Evaluate: " + question + " " + s); val p = r.contains("PASS") && !r.contains("FAIL"); return JudgeResult(if (p) 1.0f else 0.5f, p, r.take(500)) }
     override suspend fun generateComponent(spec: ComponentSpec): TutorComponent {
         return TutorComponent(spec.id, spec.name, spec.description, false, spec.prerequisites, spec.codeLines)
+    }
+
+    override suspend fun judgeAssignment(components: Map<String, String>, question: String): JudgeResult {
+        if (!hasKey()) return JudgeResult(1.0f, true, "Configure API key for assignment evaluation.")
+        val (ep, key, model) = getConfig()
+        val summary = components.entries.joinToString("\n") { it.key + ":\n" + it.value.take(200) }
+        val prompt = "Evaluate this assignment. $question\n\n$summary\n\nProvide detailed feedback."
+        val result: String = chat(ep, key, model, prompt)
+        val passed = result.contains("PASS", ignoreCase = true) && !result.contains("FAIL", ignoreCase = true)
+        return JudgeResult(score = if (passed) 1.0f else 0.5f, passed = passed, feedback = result)
     }
 
     private suspend fun chat(endpoint: String, apiKey: String, model: String, prompt: String): String {
@@ -77,27 +86,23 @@ class DeepSeekLLMProvider @Inject constructor(
                 "model" to model,
                 "messages" to listOf<Any>(mapOf<Any, Any>("role" to "user", "content" to prompt)),
                 "temperature" to 0.3,
-                "max_tokens" to 2048
+                "max_tokens" to 8192
             )
             val jsonBody: String = gson.toJson(body)
-
             val request: Request = Request.Builder()
                 .url(url)
                 .addHeader("Authorization", "Bearer $apiKey")
                 .addHeader("Content-Type", "application/json")
                 .post(jsonBody.toRequestBody(JSON))
                 .build()
-
             val response: Response = client.newCall(request).execute()
             val bodyStr: String = response.body?.string() ?: throw IOException("Empty response")
             if (!response.isSuccessful) throw IOException("API " + response.code + ": " + bodyStr)
-
             val root = JsonParser.parseString(bodyStr).asJsonObject
             val choices = root.getAsJsonArray("choices")
             val first = choices.get(0).asJsonObject
             val message = first.getAsJsonObject("message")
-            val content: String = message.get("content").asString
-            content
+            message.get("content").asString
         }
     }
 }
