@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cs336.tutor.domain.engine.TutorEngine
+import com.cs336.tutor.domain.model.JudgeResult
+import com.cs336.tutor.domain.provider.LLMProvider
 import com.cs336.tutor.domain.model.TutorComponent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -11,8 +13,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import com.cs336.tutor.domain.provider.LLMProvider
-import com.cs336.tutor.domain.model.JudgeResult
 import javax.inject.Inject
 
 data class DashboardUiState(
@@ -65,6 +65,21 @@ class DashboardViewModel @Inject constructor(
                 _uiState.value = DashboardUiState(components = localized, isLoading = false)
             }
         }
+    
+    fun onJudgeAssignment() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isJudging = true)
+            try {
+                val comps = _uiState.value.components
+                val map = comps.associate { it.id to it.description }
+                val result = llmProvider.judgeAssignment(map, "Evaluate Assignment 1 implementation")
+                _uiState.value = _uiState.value.copy(judgeResult = result, isJudging = false)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    judgeResult = JudgeResult(0f, false, e.message ?: "Error"),
+                    isJudging = false
+                )
+            }
+        }
     }
-    fun onJudgeAssignment() { viewModelScope.launch { _uiState.value = _uiState.value.copy(isJudging = true); try { val comps = uiState.value.components; val map = comps.associate { it.id to (it.description) }; val r = llmProvider.judgeAssignment(map, "Evaluate Assignment 1"); _uiState.value = _uiState.value.copy(judgeResult = r, isJudging = false) } catch (e: Exception) { _uiState.value = _uiState.value.copy(judgeResult = JudgeResult(0f, false, e.message ?: "Error"), isJudging = false) } } }
 }
