@@ -63,4 +63,5 @@
     <string name="completed">已完成</string>
     <string name="progress">进度</string>
     <string name="navigate_hint">点击一行代码查看解释</string>
+    <string name="judge_assignment_button">评判作业</string>
 </resources>

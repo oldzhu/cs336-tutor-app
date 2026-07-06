@@ -38,6 +38,24 @@ fun DashboardScreen(
                     }
                 }
             )
+n            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = { viewModel.onJudgeAssignment() },
+                enabled = !uiState.isJudging,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (uiState.isJudging) CircularProgressIndicator(Modifier.size(16.dp))
+                else Text(stringResource(R.string.judge_assignment_button))
+            }
+            uiState.judgeResult?.let { r ->
+                Spacer(Modifier.height(8.dp))
+                Card(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(12.dp)) {
+                        Text("Score: " + (r.score * 100).toInt() + "%", style = MaterialTheme.typography.titleMedium)
+                        Text(r.feedback, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
         }
     ) { padding ->
         Column(
@@ -65,6 +83,24 @@ fun DashboardScreen(
                         component = component,
                         onClick = { onNavigateToTutor(component.id) }
                     )
+                }
+            }
+n            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = { viewModel.onJudgeAssignment() },
+                enabled = !uiState.isJudging,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (uiState.isJudging) CircularProgressIndicator(Modifier.size(16.dp))
+                else Text(stringResource(R.string.judge_assignment_button))
+            }
+            uiState.judgeResult?.let { r ->
+                Spacer(Modifier.height(8.dp))
+                Card(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(12.dp)) {
+                        Text("Score: " + (r.score * 100).toInt() + "%", style = MaterialTheme.typography.titleMedium)
+                        Text(r.feedback, style = MaterialTheme.typography.bodySmall)
+                    }
                 }
             }
         }

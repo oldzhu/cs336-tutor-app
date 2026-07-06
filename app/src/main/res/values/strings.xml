@@ -64,4 +64,5 @@
     <string name="completed">Completed</string>
     <string name="progress">Progress</string>
     <string name="navigate_hint">Navigate to a line to see explanation</string>
+    <string name="judge_assignment_button">Judge Assignment</string>
 </resources>

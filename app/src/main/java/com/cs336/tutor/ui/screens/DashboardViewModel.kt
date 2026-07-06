@@ -11,11 +11,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.cs336.tutor.domain.provider.LLMProvider
+import com.cs336.tutor.domain.model.JudgeResult
 import javax.inject.Inject
 
 data class DashboardUiState(
     val components: List<TutorComponent> = emptyList(),
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
+    val judgeResult: JudgeResult? = null,
+    val isJudging: Boolean = false
 )
 
 private val NAMES_ZH = mapOf(
@@ -40,6 +44,7 @@ private val DESC_ZH = mapOf(
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val tutorEngine: TutorEngine,
+    private val llmProvider: LLMProvider,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -61,4 +66,5 @@ class DashboardViewModel @Inject constructor(
             }
         }
     }
+    fun onJudgeAssignment() { viewModelScope.launch { _uiState.value = _uiState.value.copy(isJudging = true); try { val comps = uiState.value.components; val map = comps.associate { it.id to (it.description) }; val r = llmProvider.judgeAssignment(map, "Evaluate Assignment 1"); _uiState.value = _uiState.value.copy(judgeResult = r, isJudging = false) } catch (e: Exception) { _uiState.value = _uiState.value.copy(judgeResult = JudgeResult(0f, false, e.message ?: "Error"), isJudging = false) } } }
 }
