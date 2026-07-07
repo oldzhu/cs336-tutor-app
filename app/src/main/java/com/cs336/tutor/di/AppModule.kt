@@ -4,7 +4,6 @@ import androidx.room.Room
 import com.cs336.tutor.data.local.dao.ProgressDao
 import com.cs336.tutor.data.local.TutorDatabase
 import com.cs336.tutor.data.remote.DeepSeekLLMProvider
-import com.cs336.tutor.data.remote.LocalLLMProvider
 import com.cs336.tutor.data.remote.MockLLMProvider
 import com.cs336.tutor.data.repository.TutorEngineImpl
 import com.cs336.tutor.domain.engine.TutorEngine
@@ -22,5 +21,5 @@ object AppModule {
     @Provides @Singleton
     fun provideTutorEngine(engine: TutorEngineImpl): TutorEngine = engine
     @Provides @Singleton
-    @Provides @Singleton fun provideLLMProvider(@ApplicationContext context: Context): LLMProvider = DeepSeekLLMProvider(context)
+    fun provideLLMProvider(@ApplicationContext context: Context): LLMProvider = DeepSeekLLMProvider(context)
 }
