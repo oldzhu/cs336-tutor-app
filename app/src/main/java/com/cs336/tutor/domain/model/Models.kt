@@ -9,6 +9,13 @@ data class TutorComponent(
     val codeLines: List<CodeLineStub> = emptyList()
 )
 
+
+data class ChatMessage(
+    val role: String,      // "user" or "assistant"
+    val content: String,
+    val timestamp: Long = System.currentTimeMillis()
+)
+
 data class CodeLineStub(
     val lineNumber: Int,
     val code: String,

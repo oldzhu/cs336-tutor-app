@@ -9,6 +9,7 @@ import com.cs336.tutor.domain.engine.OptimizerComponent
 import com.cs336.tutor.domain.engine.RMSNormComponent
 import com.cs336.tutor.domain.engine.RoPEComponent
 import com.cs336.tutor.domain.engine.TrainingLoopComponent
+import com.cs336.tutor.domain.engine.FullCodeReviewComponent
 import com.cs336.tutor.domain.engine.TransformerBlockComponent
 import com.cs336.tutor.domain.engine.TutorEngine
 import com.cs336.tutor.domain.model.ComponentSpec
@@ -33,6 +34,7 @@ class TutorEngineImpl @Inject constructor() : TutorEngine {
             BPEComponent.spec, EmbeddingComponent.spec, RMSNormComponent.spec,
             RoPEComponent.spec, AttentionComponent.spec, FFNComponent.spec,
             TransformerBlockComponent.spec, LMHeadComponent.spec, OptimizerComponent.spec, TrainingLoopComponent.spec,
+            FullCodeReviewComponent.spec,
         )
         _components.value = specs.map { spec ->
             TutorComponent(

@@ -26,13 +26,15 @@ private val NAMES_ZH = mapOf(
     "bpe" to "BPE 分词器", "embedding" to "Embedding 嵌入层", "rmsnorm" to "RMSNorm",
     "rope" to "RoPE 旋转位置编码", "attention" to "多头自注意力", "ffn" to "SwiGLU 前馈网络",
     "transformer" to "Transformer 块", "lmhead" to "LM Head 输出头", "optimizer" to "Adam 优化器",
-    "training" to "训练循环"
+    "training" to "训练循环",
+    "fullreview" to "完整代码审查"
 )
 private val DESC_ZH = mapOf(
     "bpe" to "Byte-Pair Encoding", "embedding" to "Token 嵌入层", "rmsnorm" to "RMS 归一化",
     "rope" to "旋转位置编码", "attention" to "因果多头注意力", "ffn" to "SwiGLU 前馈网络",
     "transformer" to "完整 Transformer 块", "lmhead" to "LM Head 输出头", "optimizer" to "Adam 优化器",
-    "training" to "训练循环"
+    "training" to "训练循环",
+    "fullreview" to "完整代码审查"
 )
 
 @HiltViewModel
