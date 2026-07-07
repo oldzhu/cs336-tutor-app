@@ -10,6 +10,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
@@ -36,6 +38,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cs336.tutor.domain.engine.ComponentOverviews
 import com.cs336.tutor.domain.model.CodeLineStub
+import com.cs336.tutor.domain.model.ChatMessage
 import com.cs336.tutor.domain.model.JudgeResult
 import kotlinx.coroutines.delay
 
@@ -104,7 +107,8 @@ fun SplitScreenTutorScreen(
                     onQuestionChanged = viewModel::onQuestionChanged,
                     answerText = uiState.answerText,
                     isAnswerLoading = uiState.isAnswerLoading,
-                    onAskQuestion = viewModel::onAskQuestion
+                    onAskQuestion = viewModel::onAskQuestion,
+                    chatMessages = uiState.chatMessages
                 )
             }
         }
@@ -437,7 +441,8 @@ fun CodeEditorPanel(
     onQuestionChanged: (String) -> Unit,
     answerText: String,
     isAnswerLoading: Boolean,
-    onAskQuestion: (String) -> Unit
+    onAskQuestion: (String) -> Unit,
+    chatMessages: List<ChatMessage> = emptyList()
 ) {
     var localQuestion by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
@@ -515,6 +520,22 @@ fun CodeEditorPanel(
         
         HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp))
         
+        // Chat history
+        if (chatMessages.isNotEmpty()) {
+            Column(modifier = Modifier.padding(8.dp).heightIn(max = 300.dp).verticalScroll(rememberScrollState())) {
+                chatMessages.forEach { msg ->
+                    val isUser = msg.role == "user"
+                    Text(
+                        (if (isUser) "You: " else "AI: ") + msg.content,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (isUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
+                }
+            }
+            HorizontalDivider(Modifier.padding(horizontal = 8.dp))
+        }
+
         // Q&A section
         Column(modifier = Modifier.padding(8.dp)) {
             Text(stringResource(R.string.q_and_a_title), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
@@ -536,9 +557,7 @@ fun CodeEditorPanel(
                 }
             }
             if (isAnswerLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
-            if (answerText.isNotEmpty()) {
-                Text(answerText, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp))
-            }
+
         }
     }
 }
