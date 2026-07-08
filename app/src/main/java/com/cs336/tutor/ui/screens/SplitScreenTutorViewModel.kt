@@ -58,7 +58,11 @@ class SplitScreenTutorViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val component = tutorEngine.loadComponent(componentId)
-                allCodeLines = component.codeLines
+                allCodeLines = if (componentId == "fullreview") {
+                    assembleFullCode()
+                } else {
+                    component.codeLines
+                }
                 if (isChinese) {
                     val zhExps = ComponentExplanationsZh.getExplanations(componentId)
                     val zhHints = ComponentExplanationsZh.getHints(componentId)
@@ -127,6 +131,22 @@ class SplitScreenTutorViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(judgeResult = result, isLoading = false)
             } catch (e: Exception) { _uiState.value = _uiState.value.copy(judgeResult = JudgeResult(0f, false, "Error: ${e.message}"), isLoading = false) }
         }
+    }
+
+    private suspend fun assembleFullCode(): List<com.cs336.tutor.domain.model.CodeLineStub> {
+        val ids = listOf("bpe", "embedding", "rmsnorm", "rope", "attention", "ffn", "transformer", "lmhead", "optimizer", "training")
+        val result = mutableListOf<com.cs336.tutor.domain.model.CodeLineStub>()
+        var n = 1
+        for (id in ids) {
+            result.add(com.cs336.tutor.domain.model.CodeLineStub(n++, "# === $id ===", "", isEditable = false))
+            try {
+                val c = tutorEngine.loadComponent(id)
+                for (l in c.codeLines) {
+                    if (!l.code.startsWith("# === ")) result.add(l.copy(lineNumber = n++))
+                }
+            } catch (_: Exception) {}
+        }
+        return result
     }
 
     fun onJudge() {
