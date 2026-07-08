@@ -2,45 +2,52 @@
 
 > **English** · [中文版](../zh/01-dev-log.md)
 
-## 2026-07-06 — Chat History + Full Code Review + `\n` Escaping Fix
+## 2026-07-08 — Local LLM: Pre-built AAR + Custom Build Documentation + Proxy Fix
 
-### Chat History (ChatGPT-style Q&A)
-- ✅ ChatMessage data model (role, content, timestamp)
-- ✅ ViewModel accumulates per-component chat history
-- ✅ Full context sent to LLM: all code lines + current line + chat history
-- ✅ Colored chat bubbles above Q&A input (user=primary, AI=secondary)
-- ✅ Old `answerText` removed (history replaces it)
-- ✅ Scrollable at 300dp, no truncation
-- ✅ Tests: 4 ChatMessage tests
+### java-llama.cpp Pre-built AAR
+- ✅ Added `de.kherud:llama:4.1.0` Maven dependency
+- ✅ LocalLLMProvider rewired via reflection (avoids compile-time AAR dependency for JVM tests)
+- ✅ Model loads from `/sdcard/models/qwen2.5-1.5b-instruct-q4_k_m.gguf` (1.1GB)
+- ✅ Falls back to mock when model not loaded
 
-### Full Code Review Component
-- ✅ 11th component on Dashboard: `fullreview`
-- ✅ Shows assembled assignment overview
-- ✅ Prerequisites: all 10 components
-- ✅ Tests: 5 component spec tests
+### Custom Native Build (Long-term)
+- ✅ Documented in `docs/plan/en/09-custom-native-build.md`
+- ✅ 10 issues found & fixed during investigation:
+  1. NDK extraction corrupted (zip timeout)
+  2. Proxy not mirrored to WSL (127.0.0.1 vs 172.20.80.1)
+  3. sudo blocks in WSL (password required)
+  4. Android SDK cmake is Windows binary
+  5. CMake "No SOURCES" (sync issues)
+  6. Missing ggml-backend.c → ggml-backend.cpp
+  7. C++17 features without -std=c++17
+  8. Missing GGML_VERSION macros
+  9. Missing ggml-impl.h include
+  10. Undefined symbols at link (100+ source files needed)
+- CMakeLists.txt updated for llama.cpp v4.x structure
+- Correct approach documented: build static lib via llama.cpp's CMake → link JNI
 
-### `\n` Escaping Fix
-- Root cause: Python heredoc's `\n` → literal newline in Kotlin
-- Solution: `\\\\n` (4 backslashes) in Python → `\n` in Kotlin
-- Pattern saved for all future WSL file edits
+### Proxy Configuration Root Cause
+- Windows: `http_proxy=http://127.0.0.1:10808` (Clash/V2Ray)
+- WSL NAT can't reach `127.0.0.1`
+- Correct WSL proxy: `http_proxy=http://172.20.80.1:10808`
+- Persist: add to `~/.bashrc` in WSL
 
-### Assignment-Level Judging
-- ✅ FAB with loading spinner + progress text
-- ✅ DeepSeek API evaluation via manual provider creation
-- ✅ Score persists until dismissed
-- ✅ ModalBottomSheet display
+### Full Code Review
+- ✅ Dynamic code assembly from all 10 components at runtime
+
+### Chat History (ChatGPT-style)
+- ✅ ChatMessage model, per-component history, full LLM context
+- ✅ Colored chat display, scrollable, removable answerText
+- ✅ `\\n` escaping fix: Python heredoc needs 4 backslashes (`\\\\n`)
 
 ### Tests
-- ChatAndReviewTests.kt: 12 new tests
-- DashboardViewModelJudgeTest.kt: 2 tests (fixed companion object ref)
-- All JVM tests pass: BUILD SUCCESSFUL
+- LocalLLMProviderTest: 6 tests
+- ChatAndReviewTests: 12 tests
+- All JVM tests pass
 
-### Git: 49 commits on `oldzhu/cs336-tutor-app` master
+### Git: 52 commits on `oldzhu/cs336-tutor-app` master
 
 ## 2026-07-03 — DeepSeek LLM Provider + All Explanations
-
 ## 2026-07-02 — Language Switching + Component Expansion
-
 ## 2026-07-01 — Phase 1: BPE Tutor & UI Polish
-
 ## 2026-06-30 — Project Initiation
