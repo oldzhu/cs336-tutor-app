@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.22.1)
 project("llama_jni")
 
-# Link against pre-built llama.cpp static libraries
+# Link against llama.cpp static libraries (submodule at repo root)
 if(NOT DEFINED LLAMA_BUILD_DIR)
-    set(LLAMA_BUILD_DIR /tmp/llama.cpp/build-android)
+    set(LLAMA_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../llama.cpp/build-android)
 endif()
 
 add_library(llama SHARED
@@ -13,9 +13,9 @@ add_library(llama SHARED
 target_include_directories(llama PRIVATE
     ${LLAMA_BUILD_DIR}/ggml/src
     ${LLAMA_BUILD_DIR}/src
-    /tmp/llama.cpp/include
-    /tmp/llama.cpp/ggml/include
-    /tmp/llama.cpp/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../llama.cpp/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../llama.cpp/ggml/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../llama.cpp/src
 )
 
 # Link all required static libraries
