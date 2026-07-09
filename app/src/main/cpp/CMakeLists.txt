@@ -1,33 +1,29 @@
 cmake_minimum_required(VERSION 3.22.1)
 project("llama_jni")
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Link against llama.cpp static libraries (submodule at repo root)
-if(NOT DEFINED LLAMA_BUILD_DIR)
-    set(LLAMA_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../llama.cpp/build-android)
-endif()
+set(LLAMA_DIR /tmp/llama.cpp)
+
+include_directories(
+    ${LLAMA_DIR}/include
+    ${LLAMA_DIR}/ggml/include
+    ${LLAMA_DIR}/src
+)
 
 add_library(llama SHARED
     llama_jni.cpp
-)
-
-target_include_directories(llama PRIVATE
-    ${LLAMA_BUILD_DIR}/ggml/src
-    ${LLAMA_BUILD_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../../llama.cpp/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../../llama.cpp/ggml/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../../llama.cpp/src
-)
-
-# Link all required static libraries
-target_link_libraries(llama
-    ${LLAMA_BUILD_DIR}/src/libllama.a
-    ${LLAMA_BUILD_DIR}/common/libllama-common.a
-    ${LLAMA_BUILD_DIR}/common/libllama-common-base.a
-    ${LLAMA_BUILD_DIR}/ggml/src/libggml.a
-    ${LLAMA_BUILD_DIR}/ggml/src/libggml-base.a
-    ${LLAMA_BUILD_DIR}/ggml/src/libggml-cpu.a
-    android
-    log
+    ${LLAMA_DIR}/src/llama.cpp
+    ${LLAMA_DIR}/ggml/src/ggml.c
+    ${LLAMA_DIR}/ggml/src/ggml-alloc.c
+    ${LLAMA_DIR}/ggml/src/ggml-backend.cpp
+    ${LLAMA_DIR}/ggml/src/ggml-quants.c
+    ${LLAMA_DIR}/ggml/src/ggml.cpp
+    ${LLAMA_DIR}/ggml/src/gguf.cpp
+    ${LLAMA_DIR}/common/common.cpp
+    ${LLAMA_DIR}/common/sampling.cpp
 )
 
 target_compile_definitions(llama PRIVATE GGML_USE_CPU=1)
+target_compile_features(llama PRIVATE cxx_std_17)
+target_link_libraries(llama android log)
