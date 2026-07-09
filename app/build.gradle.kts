@@ -118,6 +118,9 @@ dependencies {
     // WebView (for code editor)
     implementation("androidx.webkit:webkit:1.12.1")
 
+    // Pre-built AAR fallback for local LLM
+    implementation("de.kherud:llama:4.1.0")
+
     // Testing
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")

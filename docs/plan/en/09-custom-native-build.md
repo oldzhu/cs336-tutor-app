@@ -1,6 +1,6 @@
 # Custom libllama.so Build — Reference & Tracking
 
-> **Status**: In Progress · **Priority**: P2 (pre-built AAR for P0)
+> **Status**: P2 (CRASH in llama_decode — AAR fallback works)
 
 ## Goal
 Build our own `libllama.so` for arm64-v8a without relying on third-party AARs.
@@ -157,3 +157,30 @@ target_link_libraries(llama android log)
 - `app/src/main/cpp/CMakeLists.txt` — Build config
 - `app/src/main/java/.../NativeBridge.kt` — Kotlin JNI class
 - `app/src/main/java/.../LocalLLMProvider.kt` — Provider (uses AAR for now)
+
+## Latest Status (2026-07-09): Crash in llama_decode
+
+**libllama.so was successfully built (49MB, ARM64)** and model loads correctly. However, `llama_decode()` crashes with SIGABRT on any prompt > ~32 tokens processed in sequence.
+
+### Key Finding
+- AAR fallback (`de.kherud:llama:4.1.0`) works perfectly with same model
+- Model file is valid (GGUF v3, Qwen2.5-1.5B Q4_K_M)
+- Crash is in our custom linking, not the model
+
+### Crash Pattern
+```
+tokens: 672
+decode batch: offset=0, size=32 → rc=0  ✅
+decode batch: offset=32, size=32 → rc=0 ✅
+decode batch: offset=64, size=32 → rc=0 ✅
+...
+decode batch: offset=160, size=32 → SIGABRT ❌
+```
+
+Also crashes with 672 tokens in one batch (no rc message at all).
+
+### Investigation Plan
+1. Compare CMAKE flags with AAR's build config
+2. Try n_threads=1, n_batch ≤ n_tokens
+3. Check GGML_BACKEND_CPU linkage
+4. Debug build with assertions enabled
