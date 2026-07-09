@@ -4,19 +4,19 @@ import android.util.Log
 import com.cs336.tutor.domain.model.*
 import com.cs336.tutor.domain.provider.ExplanationChunk
 import com.cs336.tutor.domain.provider.LLMProvider
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
 
 /**
- * Local LLM provider using java-llama.cpp (kherud/llama:4.1.0).
- * Uses reflection to avoid compile-time dependency on the AAR API,
- * so unit tests pass without the native library.
+ * Local LLM provider using our own libllama.so via NativeBridge JNI.
+ * Model: Qwen2.5-1.5B-Instruct GGUF (Q4_K_M, ~900MB).
  */
 class LocalLLMProvider : LLMProvider {
 
     override val name: String = "Local"
-    private var nativeModel: Any? = null
     private var modelLoaded = false
 
     companion object {
@@ -26,18 +26,14 @@ class LocalLLMProvider : LLMProvider {
 
     fun loadModel(path: String = DEFAULT_MODEL_PATH): Boolean {
         return try {
-            // LlamaModel via reflection
-            val modelParamsClass = Class.forName("de.kherud.llama.ModelParameters")
-            val mp = modelParamsClass.getConstructor().newInstance()
-            modelParamsClass.getMethod("setModelPath", String::class.java).invoke(mp, path)
-            
-            val llamaModelClass = Class.forName("de.kherud.llama.LlamaModel")
-            nativeModel = llamaModelClass.getConstructor(modelParamsClass).newInstance(mp)
-            modelLoaded = true
-            Log.i(TAG, "Model loaded: $path")
-            true
+            if (!NativeBridge.isAvailable()) {
+                Log.e(TAG, "NativeBridge not available — libllama.so not loaded")
+                return false
+            }
+            modelLoaded = NativeBridge.initModel(path, 2048)
+            Log.i(TAG, "Model loaded: $path, success=$modelLoaded")
+            modelLoaded
         } catch (e: Exception) {
-            modelLoaded = false
             Log.e(TAG, "Failed to load: ${e.message}")
             false
         }
@@ -46,16 +42,16 @@ class LocalLLMProvider : LLMProvider {
     fun isModelLoaded(): Boolean = modelLoaded
 
     override suspend fun explain(componentId: String, lines: List<String>): Flow<ExplanationChunk> = flow {
-        emit(ExplanationChunk(if (modelLoaded) infer("Explain: ${lines.joinToString(" ")}") else "Model not loaded", true))
-    }
+        emit(ExplanationChunk(if (modelLoaded) NativeBridge.infer("Explain: ${lines.joinToString(" ")}") else "Model not loaded", true))
+    }.flowOn(Dispatchers.IO)
 
     override suspend fun judge(id: String, user: String, expected: String): JudgeResult {
-        val fb = if (modelLoaded) infer("Judge: user vs expected").take(500) else "Model not loaded"
+        val fb = if (modelLoaded) NativeBridge.infer("Judge code").take(500) else "Model not loaded"
         return JudgeResult(0.9f, true, fb)
     }
 
     override suspend fun answer(question: String, context: String): Flow<ExplanationChunk> {
-        val r = if (modelLoaded) infer("Context: $context\nQ: $question\nA:") else "Model not loaded"
+        val r = if (modelLoaded) NativeBridge.infer("Context: $context\nQ: $question\nA:") else "Model not loaded"
         return flowOf(ExplanationChunk(r, true))
     }
 
@@ -67,18 +63,8 @@ class LocalLLMProvider : LLMProvider {
         return JudgeResult(0.85f, true, if (modelLoaded) "Local judge pending" else "Model not loaded")
     }
 
-    private fun infer(prompt: String): String = try {
-        val infParamsClass = Class.forName("de.kherud.llama.InferenceParameters")
-        val ip = infParamsClass.getConstructor().newInstance()
-        infParamsClass.getMethod("setNPredict", Int::class.java).invoke(ip, 256)
-        infParamsClass.getMethod("setTemperature", Float::class.java).invoke(ip, 0.7f)
-        
-        nativeModel?.javaClass?.getMethod("complete", String::class.java, infParamsClass)
-            ?.invoke(nativeModel, prompt, ip) as? String ?: "No response"
-    } catch (e: Exception) { "Error: ${e.message}" }
-
     fun close() {
-        try { nativeModel?.javaClass?.getMethod("close")?.invoke(nativeModel) } catch (_: Exception) {}
-        nativeModel = null; modelLoaded = false
+        if (modelLoaded) NativeBridge.freeModel()
+        modelLoaded = false
     }
 }
