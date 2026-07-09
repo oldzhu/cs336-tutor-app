@@ -21,44 +21,22 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
-    @Provides
-    @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): TutorDatabase {
-        return Room.databaseBuilder(
-            context,
-            TutorDatabase::class.java,
-            "cs336_tutor.db"
-        ).build()
-    }
+    @Provides @Singleton fun provideDatabase(@ApplicationContext c: Context) = Room.databaseBuilder(c, TutorDatabase::class.java, "cs336_tutor.db").build()
+    @Provides @Singleton fun provideProgressDao(db: TutorDatabase) = db.progressDao()
+    @Provides @Singleton fun provideTutorEngine(e: TutorEngineImpl): TutorEngine = e
 
     @Provides
-    @Singleton
-    fun provideProgressDao(database: TutorDatabase): ProgressDao {
-        return database.progressDao()
-    }
-
-    @Provides
-    @Singleton
-    fun provideTutorEngine(engine: TutorEngineImpl): TutorEngine = engine
-
-    @Provides
-    @Singleton
     fun provideLLMProvider(@ApplicationContext context: Context): LLMProvider {
         val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
-        val providerType = prefs.getString("llm_provider_type", "remote") ?: "remote"
-        return if (providerType == "local") {
-            val modelPath = prefs.getString("local_model_path", 
-                LocalLLMProvider.DEFAULT_MODEL_PATH) ?: LocalLLMProvider.DEFAULT_MODEL_PATH
-            val local = LocalLLMProvider()
-            local.loadModel(modelPath)
-            local
+        val pt = prefs.getString("llm_provider_type", "remote") ?: "remote"
+        return if (pt == "local") {
+            val path = TutorApplication.modelPath.ifEmpty {
+                prefs.getString("local_model_path", "/sdcard/Android/data/com.cs336.tutor/files/model.gguf") ?: ""
+            }
+            LocalLLMProvider().also { it.loadModel(path) }
         } else {
             val key = prefs.getString("api_key", "")?.filter { !it.isWhitespace() } ?: ""
-            if (key.startsWith("sk-")) {
-                DeepSeekLLMProvider(context)
-            } else {
-                MockLLMProvider()
-            }
+            if (key.startsWith("sk-")) DeepSeekLLMProvider(context) else MockLLMProvider()
         }
     }
 }

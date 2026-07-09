@@ -1,6 +1,5 @@
 package com.cs336.tutor.ui.screens
 
-import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -157,6 +156,14 @@ fun SettingsScreen(
                     Text(stringResource(R.string.settings_saved), modifier = Modifier.padding(16.dp), color = MaterialTheme.colorScheme.onPrimaryContainer)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
+            }
+
+            // Model download list (local mode)
+            if (!uiState.isRemote) {
+                ModelDownloadList(context) { path ->
+                    viewModel.onLocalModelPathChanged(path)
+                }
+                Spacer(modifier = Modifier.height(8.dp))
             }
 
             Button(
