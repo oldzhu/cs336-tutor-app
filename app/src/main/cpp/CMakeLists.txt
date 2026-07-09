@@ -1,29 +1,31 @@
 cmake_minimum_required(VERSION 3.22.1)
 project("llama_jni")
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(LLAMA_DIR /tmp/llama.cpp)
+set(LLAMA_BUILD /tmp/llama.cpp/build-android)
+set(LLAMA_SRC /tmp/llama.cpp)
 
 include_directories(
-    ${LLAMA_DIR}/include
-    ${LLAMA_DIR}/ggml/include
-    ${LLAMA_DIR}/src
+    ${LLAMA_SRC}/include
+    ${LLAMA_SRC}/ggml/include
+    ${LLAMA_SRC}/src
+    ${LLAMA_BUILD}/common
+    ${LLAMA_BUILD}/src
+    ${LLAMA_BUILD}/ggml/src
 )
 
 add_library(llama SHARED
     llama_jni.cpp
-    ${LLAMA_DIR}/src/llama.cpp
-    ${LLAMA_DIR}/ggml/src/ggml.c
-    ${LLAMA_DIR}/ggml/src/ggml-alloc.c
-    ${LLAMA_DIR}/ggml/src/ggml-backend.cpp
-    ${LLAMA_DIR}/ggml/src/ggml-quants.c
-    ${LLAMA_DIR}/ggml/src/ggml.cpp
-    ${LLAMA_DIR}/ggml/src/gguf.cpp
-    ${LLAMA_DIR}/common/common.cpp
-    ${LLAMA_DIR}/common/sampling.cpp
+)
+
+target_link_libraries(llama
+    ${LLAMA_BUILD}/src/libllama.a
+    ${LLAMA_BUILD}/common/libllama-common.a
+    ${LLAMA_BUILD}/common/libllama-common-base.a
+    ${LLAMA_BUILD}/ggml/src/libggml.a
+    ${LLAMA_BUILD}/ggml/src/libggml-base.a
+    ${LLAMA_BUILD}/ggml/src/libggml-cpu.a
+    android
+    log
 )
 
 target_compile_definitions(llama PRIVATE GGML_USE_CPU=1)
-target_compile_features(llama PRIVATE cxx_std_17)
-target_link_libraries(llama android log)
