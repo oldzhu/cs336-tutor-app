@@ -18,7 +18,7 @@ data class SettingsUiState(
     val apiEndpoint: String = "https://api.deepseek.com/v1",
     val apiKey: String = "",
     val modelName: String = "deepseek-v4-flash",
-    val localModelPath: String = "http://localhost:11434",
+    val localModelPath: String = "/sdcard/models/qwen2.5-1.5b-instruct-q4_k_m.gguf",
     val isSaving: Boolean = false,
     val isSaved: Boolean = false
 )
