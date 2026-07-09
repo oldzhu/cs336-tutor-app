@@ -23,6 +23,7 @@ object AppModule {
 
     @Provides @Singleton fun provideDatabase(@ApplicationContext c: Context) = Room.databaseBuilder(c, TutorDatabase::class.java, "cs336_tutor.db").build()
     @Provides @Singleton fun provideProgressDao(db: TutorDatabase) = db.progressDao()
+    @Provides @Singleton fun provideChatMessageDao(db: TutorDatabase) = db.chatMessageDao()
     @Provides @Singleton fun provideTutorEngine(e: TutorEngineImpl): TutorEngine = e
 
     @Provides

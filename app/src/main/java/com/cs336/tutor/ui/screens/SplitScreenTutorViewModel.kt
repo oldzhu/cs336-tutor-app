@@ -5,7 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cs336.tutor.domain.engine.ComponentExplanationsZh
 import com.cs336.tutor.domain.engine.TutorEngine
+import com.cs336.tutor.data.local.dao.ChatMessageDao
+import com.cs336.tutor.data.local.entity.ChatMessageEntity
 import com.cs336.tutor.domain.model.ChatMessage
+import kotlinx.coroutines.launch
 import com.cs336.tutor.domain.model.CodeLineStub
 import com.cs336.tutor.domain.model.JudgeResult
 import com.cs336.tutor.domain.provider.LLMProvider
@@ -38,6 +41,7 @@ data class SplitScreenTutorUiState(
 class SplitScreenTutorViewModel @Inject constructor(
     private val tutorEngine: TutorEngine,
     private val llmProvider: LLMProvider,
+    private val chatMessageDao: ChatMessageDao,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -98,6 +102,9 @@ class SplitScreenTutorViewModel @Inject constructor(
         val msgs = _uiState.value.chatMessages + userMsg
         _uiState.value = _uiState.value.copy(isAnswerLoading = true, answerText = "", chatMessages = msgs)
         viewModelScope.launch {
+            chatMessageDao.insert(ChatMessageEntity(componentId = _uiState.value.componentId, role = "user", content = q))
+        }
+        viewModelScope.launch {
             try {
                 // Build full context: all code + current line + chat history
                 val fullCode = allCodeLines.joinToString("\n") { "${it.lineNumber}: ${it.code}" }
@@ -112,6 +119,9 @@ class SplitScreenTutorViewModel @Inject constructor(
                     if (chunk.isComplete) {
                         val assistantMsg = ChatMessage("assistant", answer)
                         _uiState.value = _uiState.value.copy(chatMessages = _uiState.value.chatMessages + assistantMsg)
+                        viewModelScope.launch {
+                            chatMessageDao.insert(ChatMessageEntity(componentId = _uiState.value.componentId, role = "assistant", content = answer))
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -158,6 +168,20 @@ class SplitScreenTutorViewModel @Inject constructor(
                 val result = llmProvider.judge(componentId = state.componentId, userCode = state.userCode, expectedCode = state.currentLine?.code ?: "")
                 _uiState.value = _uiState.value.copy(judgeResult = result, isLoading = false)
             } catch (e: Exception) { _uiState.value = _uiState.value.copy(judgeResult = JudgeResult(0f, false, "Judge error: ${e.message}"), isLoading = false) }
+        }
+    }
+    fun loadChatHistory() {
+        viewModelScope.launch {
+            val entities = chatMessageDao.getMessages(_uiState.value.componentId)
+            val msgs = entities.map { ChatMessage(it.role, it.content, it.timestamp) }
+            _uiState.value = _uiState.value.copy(chatMessages = msgs)
+        }
+    }
+
+    fun clearChatHistory() {
+        viewModelScope.launch {
+            chatMessageDao.clearComponent(_uiState.value.componentId)
+            _uiState.value = _uiState.value.copy(chatMessages = emptyList())
         }
     }
 }

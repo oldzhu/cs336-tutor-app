@@ -54,6 +54,7 @@ fun SplitScreenTutorScreen(
         val lang = (LocalContext.current.getSharedPreferences("app_settings", 0).getString("language", "en") ?: "en") == "zh"
     LaunchedEffect(componentId, lang) {
         viewModel.initialize(componentId)
+        viewModel.loadChatHistory()
     }
 
     Scaffold(
