@@ -15,12 +15,12 @@
     <string name="remote_provider">Remote</string>
     <string name="local_provider">Local</string>
     <string name="api_endpoint_label">API Endpoint URL</string>
-    <string name="local_endpoint_label">Local Endpoint URL</string>
+    <string name="local_model_path_label">Local Model Path</string>
     <string name="save_settings">Save Settings</string>
     <string name="saving">Saving…</string>
     <string name="settings_saved">✅ Settings saved</string>
     <string name="settings_hint">After saving, the app uses the configured provider for all AI features.</string>
-    <string name="local_endpoint_hint">e.g. Ollama on LAN: http://YOUR_IP:11434</string>
+    <string name="local_model_path_hint">GGUF model file path, e.g. /sdcard/models/qwen.gguf</string>
     
     <!-- Tutor -->
     <string name="judge_button">Judge My Code</string>
@@ -34,6 +34,7 @@
     <string name="explanation_section">🧠 What this does</string>
     <string name="hints_section">💡 Hints</string>
     <string name="all_lines_title">📜 All Code Lines</string>
+    <string name="navigate_hint">Jump to line number</string>
     <string name="q_and_a_title">❓ Ask a Question</string>
     <string name="q_and_a_placeholder">Why does this line…</string>
     <string name="typing_indicator">▊ typing…</string>
@@ -63,6 +64,4 @@
     <string name="locked">🔒 Locked</string>
     <string name="completed">Completed</string>
     <string name="progress">Progress</string>
-    <string name="navigate_hint">Navigate to a line to see explanation</string>
-    <string name="judge_assignment_button">Judge Assignment</string>
 </resources>

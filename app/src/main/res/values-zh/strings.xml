@@ -16,12 +16,12 @@
     <string name="remote_provider">远程</string>
     <string name="local_provider">本地</string>
     <string name="api_endpoint_label">API 端点 URL</string>
-    <string name="local_endpoint_label">本地端点 URL</string>
+    <string name="local_model_path_label">本地模型路径</string>
     <string name="save_settings">保存设置</string>
     <string name="saving">保存中...</string>
     <string name="settings_saved">✅ 设置已保存</string>
     <string name="settings_hint">保存后，应用将使用配置的提供商进行所有 AI 功能（讲解、评判、问答）。</string>
-    <string name="local_endpoint_hint">例如：局域网内的 Ollama: http://YOUR_IP:11434</string>
+    <string name="local_model_path_hint">GGUF 模型文件路径，例如 /sdcard/models/qwen.gguf</string>
 
     <!-- Tutor -->
     <string name="judge_button">评判我的代码</string>
@@ -33,6 +33,7 @@
     <string name="explanation_section">🧠 这行代码做什么</string>
     <string name="hints_section">💡 提示</string>
     <string name="all_lines_title">📜 全部代码</string>
+    <string name="navigate_hint">跳转到行号</string>
     <string name="q_and_a_title">❓ 提问</string>
     <string name="q_and_a_placeholder">为什么这行代码...</string>
     <string name="typing_indicator">▊ 正在输入...</string>
@@ -62,6 +63,4 @@
     <string name="locked">🔒 已锁定</string>
     <string name="completed">已完成</string>
     <string name="progress">进度</string>
-    <string name="navigate_hint">点击一行代码查看解释</string>
-    <string name="judge_assignment_button">评判作业</string>
 </resources>

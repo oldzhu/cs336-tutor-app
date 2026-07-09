@@ -18,7 +18,7 @@ data class SettingsUiState(
     val apiEndpoint: String = "https://api.deepseek.com/v1",
     val apiKey: String = "",
     val modelName: String = "deepseek-v4-flash",
-    val localEndpoint: String = "http://localhost:11434",
+    val localModelPath: String = "http://localhost:11434",
     val isSaving: Boolean = false,
     val isSaved: Boolean = false
 )
@@ -40,7 +40,7 @@ class SettingsViewModel @Inject constructor(
             apiEndpoint = prefs.getString("api_endpoint", "https://api.deepseek.com/v1") ?: "https://api.deepseek.com/v1",
             apiKey = prefs.getString("api_key", "") ?: "",
             modelName = prefs.getString("model", "deepseek-v4-flash") ?: "deepseek-v4-flash",
-            localEndpoint = prefs.getString("local_endpoint", "http://localhost:11434") ?: "http://localhost:11434"
+            localModelPath = prefs.getString("local_endpoint", "http://localhost:11434") ?: "http://localhost:11434"
         )
     }
 
@@ -69,8 +69,8 @@ class SettingsViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(modelName = model, isSaved = false)
     }
 
-    fun onLocalEndpointChanged(endpoint: String) {
-        _uiState.value = _uiState.value.copy(localEndpoint = endpoint, isSaved = false)
+    fun onLocalModelPathChanged(endpoint: String) {
+        _uiState.value = _uiState.value.copy(localModelPath = endpoint, isSaved = false)
     }
 
     fun onSave() {
@@ -82,7 +82,7 @@ class SettingsViewModel @Inject constructor(
             .putString("api_endpoint", s.apiEndpoint)
             .putString("api_key", s.apiKey)
             .putString("model", s.modelName)
-            .putString("local_endpoint", s.localEndpoint)
+            .putString("local_endpoint", s.localModelPath)
             .commit()
         _uiState.value = _uiState.value.copy(isSaving = true)
         viewModelScope.launch {

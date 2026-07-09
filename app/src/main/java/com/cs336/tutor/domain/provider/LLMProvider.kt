@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 /**
  * Unified interface for all LLM providers.
- * Implementations: OpenAI, Anthropic, OpenRouter, Ollama, llama.cpp
+ * Implementations: Remote (DeepSeek) and Local (llama.cpp via java-llama.cpp AAR)
  */
 interface LLMProvider {
     /** Get the provider name/identifier */

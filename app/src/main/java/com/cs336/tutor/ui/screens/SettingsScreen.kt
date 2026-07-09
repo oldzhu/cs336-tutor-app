@@ -134,17 +134,17 @@ fun SettingsScreen(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
                 )
             } else {
-                Text(stringResource(R.string.local_endpoint_label), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+                Text(stringResource(R.string.local_model_path_label), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.height(12.dp))
                 OutlinedTextField(
-                    value = uiState.localEndpoint,
-                    onValueChange = viewModel::onLocalEndpointChanged,
-                    label = { Text(stringResource(R.string.local_endpoint_label)) },
-                    placeholder = { Text("http://192.168.1.100:11434") },
+                    value = uiState.localModelPath,
+                    onValueChange = viewModel::onLocalModelPathChanged,
+                    label = { Text(stringResource(R.string.local_model_path_label)) },
+                    placeholder = { Text("/sdcard/models/qwen2.5-1.5b.q4_k_m.gguf") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Done),
-                    supportingText = { Text(stringResource(R.string.local_endpoint_hint)) }
+                    supportingText = { Text(stringResource(R.string.local_model_path_hint)) }
                 )
             }
 
