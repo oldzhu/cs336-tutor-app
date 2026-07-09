@@ -33,24 +33,19 @@ class SettingsViewModel @Inject constructor(
 
     init {
         val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
-        val savedLang = prefs.getString("language", "en") ?: "en"
-        _uiState.value = SettingsUiState(
-            isRemote = prefs.getBoolean("is_remote", true),
-            isChinese = savedLang == "zh",
+        _uiState.value = _uiState.value.copy(
+            isRemote = prefs.getString("llm_provider_type", "remote") == "remote",
+            isChinese = prefs.getString("language", "en") == "zh",
             apiEndpoint = prefs.getString("api_endpoint", "https://api.deepseek.com/v1") ?: "https://api.deepseek.com/v1",
             apiKey = prefs.getString("api_key", "") ?: "",
-            modelName = prefs.getString("model", "deepseek-v4-flash") ?: "deepseek-v4-flash",
-            localModelPath = prefs.getString("local_endpoint", "http://localhost:11434") ?: "http://localhost:11434"
+            modelName = prefs.getString("model_name", "deepseek-v4-flash") ?: "deepseek-v4-flash",
+            localModelPath = prefs.getString("local_model_path", 
+                "/sdcard/models/qwen2.5-1.5b-instruct-q4_k_m.gguf") ?: "/sdcard/models/qwen2.5-1.5b-instruct-q4_k_m.gguf"
         )
     }
 
     fun onLanguageChanged(isChinese: Boolean) {
         _uiState.value = _uiState.value.copy(isChinese = isChinese, isSaved = false)
-    }
-
-    fun saveLanguage() {
-        val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
-        prefs.edit().putString("language", if (_uiState.value.isChinese) "zh" else "en").commit()
     }
 
     fun onProviderChanged(isRemote: Boolean) {
@@ -69,20 +64,25 @@ class SettingsViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(modelName = model, isSaved = false)
     }
 
-    fun onLocalModelPathChanged(endpoint: String) {
-        _uiState.value = _uiState.value.copy(localModelPath = endpoint, isSaved = false)
+    fun onLocalModelPathChanged(path: String) {
+        _uiState.value = _uiState.value.copy(localModelPath = path, isSaved = false)
+    }
+
+    fun saveLanguage() {
+        val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        prefs.edit().putString("language", if (_uiState.value.isChinese) "zh" else "en").commit()
     }
 
     fun onSave() {
+        val state = _uiState.value
         val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
-        val s = _uiState.value
         prefs.edit()
-            .putString("language", if (s.isChinese) "zh" else "en")
-            .putBoolean("is_remote", s.isRemote)
-            .putString("api_endpoint", s.apiEndpoint)
-            .putString("api_key", s.apiKey)
-            .putString("model", s.modelName)
-            .putString("local_endpoint", s.localModelPath)
+            .putString("language", if (state.isChinese) "zh" else "en")
+            .putString("llm_provider_type", if (state.isRemote) "remote" else "local")
+            .putString("api_endpoint", state.apiEndpoint)
+            .putString("api_key", state.apiKey)
+            .putString("model_name", state.modelName)
+            .putString("local_model_path", state.localModelPath)
             .commit()
         _uiState.value = _uiState.value.copy(isSaving = true)
         viewModelScope.launch {
