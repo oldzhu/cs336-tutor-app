@@ -2,6 +2,34 @@
 
 > **English** · [中文版](../zh/01-dev-log.md)
 
+## 2026-07-09 — Persistent Chat History + Clear Button
+
+### Chat Database
+- ✅ `ChatMessageEntity` Room entity with `componentId` for per-component separation
+- ✅ `ChatMessageDao` with insert, get, clear, and Flow-based observe
+- ✅ Database version bumped to 2
+
+### Auto-Persistence
+- ✅ User messages auto-saved to Room on send
+- ✅ Assistant messages auto-saved when received
+- ✅ Chat history auto-loaded when opening a component (`LaunchedEffect`)
+- ✅ Survives app restarts and component switches
+
+### Clear Button
+- ✅ "Clear" button in chat header (red, label-small)
+- ✅ Clears both Room DB and in-memory state
+- ✅ Bilingual labels (EN "Chat" / "Clear", ZH "聊天记录" / "清除")
+
+### Files Changed
+- `data/local/entity/ChatMessageEntity.kt` — New
+- `data/local/dao/ChatMessageDao.kt` — New
+- `data/local/TutorDatabase.kt` — Added entity + DAO
+- `di/AppModule.kt` — Added ChatMessageDao provider
+- `ui/screens/SplitScreenTutorViewModel.kt` — loadChatHistory, clearChatHistory, auto-persist
+- `ui/screens/SplitScreenTutorScreen.kt` — Clear button UI
+- `res/values/strings.xml` — "chat_history_label", "clear_chat"
+- `res/values-zh/strings.xml` — Chinese translations
+
 ## 2026-07-09 — Local LLM Inference Working (via AAR) + ModelScope Download
 
 ### Local LLM Now Functional
