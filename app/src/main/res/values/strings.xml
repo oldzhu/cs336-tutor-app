@@ -17,6 +17,8 @@
     <string name="api_endpoint_label">API Endpoint URL</string>
     <string name="local_model_path_label">Local Model Path</string>
     <string name="available_models_label">Available Models</string>
+    <string name="chat_history_label">Chat</string>
+    <string name="clear_chat">Clear</string>
     <string name="save_settings">Save Settings</string>
     <string name="saving">Saving…</string>
     <string name="settings_saved">✅ Settings saved</string>

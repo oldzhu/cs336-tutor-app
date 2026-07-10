@@ -443,7 +443,8 @@ fun CodeEditorPanel(
     answerText: String,
     isAnswerLoading: Boolean,
     onAskQuestion: (String) -> Unit,
-    chatMessages: List<ChatMessage> = emptyList()
+    chatMessages: List<ChatMessage> = emptyList(),
+    onClearChat: () -> Unit = {}
 ) {
     var localQuestion by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
@@ -522,6 +523,14 @@ fun CodeEditorPanel(
         HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp))
         
         // Chat history
+        Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Text(stringResource(R.string.chat_history_label), style = MaterialTheme.typography.titleSmall)
+            if (chatMessages.isNotEmpty()) {
+                TextButton(onClick = onClearChat) {
+                    Text(stringResource(R.string.clear_chat), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
+                }
+            }
+        }
         if (chatMessages.isNotEmpty()) {
             Column(modifier = Modifier.padding(8.dp).heightIn(max = 300.dp).verticalScroll(rememberScrollState())) {
                 chatMessages.forEach { msg ->

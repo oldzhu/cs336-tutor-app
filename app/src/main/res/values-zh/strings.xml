@@ -17,6 +17,8 @@
     <string name="local_provider">本地</string>
     <string name="api_endpoint_label">API 端点 URL</string>
     <string name="local_model_path_label">本地模型路径</string>
+    <string name="chat_history_label">聊天记录</string>
+    <string name="clear_chat">清除</string>
     <string name="save_settings">保存设置</string>
     <string name="saving">保存中...</string>
     <string name="settings_saved">✅ 设置已保存</string>
