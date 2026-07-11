@@ -57,7 +57,7 @@ class SplitScreenTutorViewModel @Inject constructor(
         val currentLang = prefs.getString("language", "en") ?: "en"
         val langChanged = (currentLang == "zh") != isChinese
         if (_uiState.value.componentId == componentId && allCodeLines.isNotEmpty() && !langChanged) return
-        _uiState.value = _uiState.value.copy(componentId = componentId, isLoading = true, chatMessages = emptyList(), chatHistoryText = "")
+        _uiState.value = _uiState.value.copy(componentId = componentId, isLoading = true, chatHistoryText = "")
         isChinese = currentLang == "zh"
         viewModelScope.launch {
             try {
@@ -179,9 +179,9 @@ class SplitScreenTutorViewModel @Inject constructor(
     }
 
     fun clearChatHistory() {
+        _uiState.value = _uiState.value.copy(chatMessages = emptyList())
         viewModelScope.launch {
             chatMessageDao.clearComponent(_uiState.value.componentId)
-            _uiState.value = _uiState.value.copy(chatMessages = emptyList())
         }
     }
 }
