@@ -448,6 +448,7 @@ fun CodeEditorPanel(
     onClearChat: () -> Unit = {}
 ) {
     var localQuestion by remember { mutableStateOf("") }
+    val chatVm0: SplitScreenTutorViewModel = hiltViewModel()
     var _chatCleared by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
     
@@ -530,7 +531,7 @@ fun CodeEditorPanel(
             if (!_chatCleared && chatMessages.isNotEmpty()) {
                 TextButton(onClick = {
                         // Clear both DB and in-memory (local) state
-                        onClearChat()
+                        chatVm0.clearChatHistory()
                         _chatCleared = true
                     }) {
                     Text(stringResource(R.string.clear_chat), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
