@@ -9,6 +9,7 @@ import com.cs336.tutor.data.local.dao.ChatMessageDao
 import com.cs336.tutor.data.local.entity.ChatMessageEntity
 import com.cs336.tutor.domain.model.ChatMessage
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import com.cs336.tutor.domain.model.CodeLineStub
 import com.cs336.tutor.domain.model.JudgeResult
 import com.cs336.tutor.domain.provider.LLMProvider
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 data class SplitScreenTutorUiState(
@@ -181,9 +183,9 @@ class SplitScreenTutorViewModel @Inject constructor(
     }
 
     fun clearChatHistory() {
-        _uiState.value = _uiState.value.copy(chatMessages = emptyList(), chatCleared = true)
-        viewModelScope.launch {
-            chatMessageDao.clearComponent(_uiState.value.componentId)
-        }
+        val id = _uiState.value.componentId
+        // Clear DB synchronously so restart doesn't bring history back
+        runBlocking { chatMessageDao.clearComponent(id) }
+        _uiState.value = _uiState.value.copy(chatMessages = emptyList())
     }
 }
