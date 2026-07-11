@@ -34,7 +34,8 @@ data class SplitScreenTutorUiState(
     val answerText: String = "",
     val isAnswerLoading: Boolean = false,
     val chatMessages: List<ChatMessage> = emptyList(),
-    val chatHistoryText: String = ""
+    val chatHistoryText: String = "",
+    val chatCleared: Boolean = false
 )
 
 @HiltViewModel
@@ -100,7 +101,7 @@ class SplitScreenTutorViewModel @Inject constructor(
         if (q.isBlank()) return
         val userMsg = ChatMessage("user", q)
         val msgs = _uiState.value.chatMessages + userMsg
-        _uiState.value = _uiState.value.copy(isAnswerLoading = true, answerText = "", chatMessages = msgs)
+        _uiState.value = _uiState.value.copy(isAnswerLoading = true, answerText = "", chatCleared = false, chatMessages = msgs)
         viewModelScope.launch {
             chatMessageDao.insert(ChatMessageEntity(componentId = _uiState.value.componentId, role = "user", content = q))
         }
@@ -171,6 +172,7 @@ class SplitScreenTutorViewModel @Inject constructor(
         }
     }
     fun loadChatHistory() {
+        if (_uiState.value.chatCleared) return // Skip if user explicitly cleared
         viewModelScope.launch {
             val entities = chatMessageDao.getMessages(_uiState.value.componentId)
             val msgs = entities.map { ChatMessage(it.role, it.content, it.timestamp) }
@@ -179,7 +181,7 @@ class SplitScreenTutorViewModel @Inject constructor(
     }
 
     fun clearChatHistory() {
-        _uiState.value = _uiState.value.copy(chatMessages = emptyList())
+        _uiState.value = _uiState.value.copy(chatMessages = emptyList(), chatCleared = true)
         viewModelScope.launch {
             chatMessageDao.clearComponent(_uiState.value.componentId)
         }
