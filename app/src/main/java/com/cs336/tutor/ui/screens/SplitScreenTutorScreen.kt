@@ -61,6 +61,7 @@ fun SplitScreenTutorScreen(
         topBar = {
             TopAppBar(
                 title = { Text(uiState.componentName) },
+                actions = { androidx.compose.material3.TextButton(onClick = { viewModel.clearChatHistory() }) { androidx.compose.material3.Text("Clear") } },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)

@@ -105,7 +105,7 @@ class SplitScreenTutorViewModel @Inject constructor(
         val msgs = _uiState.value.chatMessages + userMsg
         _uiState.value = _uiState.value.copy(isAnswerLoading = true, answerText = "", chatCleared = false, chatMessages = msgs)
         viewModelScope.launch {
-            chatMessageDao.insert(ChatMessageEntity(componentId = _uiState.value.componentId, role = "user", content = q))
+            chatMessageDao.insert(ChatMessageEntity(componentId = _uiState.value.componentId, role = "user", content = q)).also { android.util.Log.e("CHAT_DB", "Inserted user msg for ${_uiState.value.componentId}") }
         }
         viewModelScope.launch {
             try {
@@ -123,7 +123,7 @@ class SplitScreenTutorViewModel @Inject constructor(
                         val assistantMsg = ChatMessage("assistant", answer)
                         _uiState.value = _uiState.value.copy(chatMessages = _uiState.value.chatMessages + assistantMsg)
                         viewModelScope.launch {
-                            chatMessageDao.insert(ChatMessageEntity(componentId = _uiState.value.componentId, role = "assistant", content = answer))
+                            chatMessageDao.insert(ChatMessageEntity(componentId = _uiState.value.componentId, role = "assistant", content = answer.take(50))).also { android.util.Log.e("CHAT_DB", "Inserted assistant msg for ${_uiState.value.componentId}") }
                         }
                     }
                 }
@@ -174,17 +174,25 @@ class SplitScreenTutorViewModel @Inject constructor(
         }
     }
     fun loadChatHistory() {
-        if (_uiState.value.chatCleared) return // Skip if user explicitly cleared
+        if (_uiState.value.chatCleared) return
+        val id = _uiState.value.componentId
+        android.util.Log.e("CHAT_DB", "loadChatHistory: componentId=$id")
         viewModelScope.launch {
-            val entities = chatMessageDao.getMessages(_uiState.value.componentId)
+            val entities = chatMessageDao.getMessages(id)
+            android.util.Log.e("CHAT_DB", "Loaded ${entities.size} messages for $id")
             val msgs = entities.map { ChatMessage(it.role, it.content, it.timestamp) }
             _uiState.value = _uiState.value.copy(chatMessages = msgs)
         }
     }
 
     fun clearChatHistory() {
+        val id = _uiState.value.componentId
+        android.util.Log.e("CHAT_DB", "clearChatHistory: componentId=$id")
         viewModelScope.launch {
-            chatMessageDao.clearComponent(_uiState.value.componentId)
+            chatMessageDao.clearComponent(id)
+            // Verify deletion
+            val remaining = chatMessageDao.getMessages(id)
+            android.util.Log.e("CHAT_DB", "After clear, remaining messages for $id: ${remaining.size}")
         }
         _uiState.value = _uiState.value.copy(chatMessages = emptyList())
     }
