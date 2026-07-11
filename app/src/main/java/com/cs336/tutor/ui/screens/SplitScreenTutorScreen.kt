@@ -447,6 +447,7 @@ fun CodeEditorPanel(
     onClearChat: () -> Unit = {}
 ) {
     var localQuestion by remember { mutableStateOf("") }
+    var _chatCleared by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
     
     Column(
@@ -525,13 +526,17 @@ fun CodeEditorPanel(
         // Chat history
         Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.chat_history_label), style = MaterialTheme.typography.titleSmall)
-            if (chatMessages.isNotEmpty()) {
-                TextButton(onClick = onClearChat) {
+            if (!_chatCleared && chatMessages.isNotEmpty()) {
+                TextButton(onClick = {
+                        // Clear both DB and in-memory (local) state
+                        onClearChat()
+                        _chatCleared = true
+                    }) {
                     Text(stringResource(R.string.clear_chat), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
                 }
             }
         }
-        if (chatMessages.isNotEmpty()) {
+        if (!_chatCleared && chatMessages.isNotEmpty()) {
             Column(modifier = Modifier.padding(8.dp).heightIn(max = 300.dp).verticalScroll(rememberScrollState())) {
                 chatMessages.forEach { msg ->
                     val isUser = msg.role == "user"
