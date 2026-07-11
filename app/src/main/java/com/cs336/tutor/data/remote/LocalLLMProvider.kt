@@ -63,6 +63,8 @@ class LocalLLMProvider : LLMProvider {
             // Set prompt on IP
             val setPrompt = ipClass.getMethod("setPrompt", String::class.java)
             setPrompt.invoke(ip, "")
+            val setNPredict = ipClass.getMethod("setNPredict", Int::class.java)
+            setNPredict.invoke(ip, 512)
             inference = ip
             
             Log.e(TAG, "AAR model loaded: $path")
