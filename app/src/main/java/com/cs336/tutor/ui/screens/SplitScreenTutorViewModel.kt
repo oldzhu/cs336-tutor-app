@@ -112,7 +112,7 @@ class SplitScreenTutorViewModel @Inject constructor(
                 // Build full context: all code + current line + chat history
                 val fullCode = allCodeLines.joinToString("\n") { "${it.lineNumber}: ${it.code}" }
                 val currentLine = _uiState.value.currentLine?.let { "Line ${it.lineNumber}: ${it.code}" } ?: ""
-                val history = _uiState.value.chatMessages.takeLast(10).joinToString("\n") { "${it.role}: ${it.content.take(200)}" }
+                val history = _uiState.value.chatMessages.takeLast(10).joinToString("\n") { "${it.role}: ${it.content.take(800)}" }
                 val ctx = "Component: ${_uiState.value.componentName}\nFull code:\n$fullCode\n\nCurrent: $currentLine\n\nChat history:\n$history"
                 val flow = llmProvider.answer(question = q, context = ctx)
                 var answer = ""

@@ -81,7 +81,7 @@ class LocalLLMProvider : LLMProvider {
         if (!modelLoaded) return flowOf(ExplanationChunk("Model error: $lastError", true))
         
         return flow {
-            val shortCtx = if (context.length > 300) context.take(200) + "..." else context
+            val shortCtx = if (context.length > 300) context.take(800) + "..." else context
             val prompt = "You are a CS336 tutor. $shortCtx\n\nQuestion: $question\nAnswer:"
             
             val r = try {
