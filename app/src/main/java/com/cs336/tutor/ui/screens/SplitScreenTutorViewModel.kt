@@ -123,7 +123,7 @@ class SplitScreenTutorViewModel @Inject constructor(
                         val assistantMsg = ChatMessage("assistant", answer)
                         _uiState.value = _uiState.value.copy(chatMessages = _uiState.value.chatMessages + assistantMsg)
                         viewModelScope.launch {
-                            chatMessageDao.insert(ChatMessageEntity(componentId = _uiState.value.componentId, role = "assistant", content = answer.take(50))).also { android.util.Log.e("CHAT_DB", "Inserted assistant msg for ${_uiState.value.componentId}") }
+                            chatMessageDao.insert(ChatMessageEntity(componentId = _uiState.value.componentId, role = "assistant", content = answer)).also { android.util.Log.e("CHAT_DB", "Inserted assistant msg for ${_uiState.value.componentId}") }
                         }
                     }
                 }
