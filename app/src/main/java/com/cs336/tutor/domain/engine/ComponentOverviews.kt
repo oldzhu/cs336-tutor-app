@@ -304,6 +304,89 @@ object ComponentOverviews {
         )
     )
 
+
+    val embedding = Overview(
+        en = OverviewContent(
+            title = "Embedding Layer",
+            formula = "E = X · W_embed  where X indices, W_embed ∈ ℝ^{V×d}",
+            algorithm = "Convert token IDs → lookup embedding table → (optional) scale by √d",
+            why = "Maps discrete tokens to continuous vectors. Without it the transformer cannot process language. Weight tying with LM Head saves parameters.",
+            references = listOf(Reference("Attention Is All You Need", "https://arxiv.org/abs/1706.03762"))
+        ),
+        zh = OverviewContent(
+            title = "嵌入层",
+            formula = "E = X · W_embed  其中 X 为索引，W_embed ∈ ℝ^{V×d}",
+            algorithm = "将 token ID → 查嵌入表 →（可选）缩放 √d",
+            why = "将离散 token 映射为连续向量。没有嵌入，Transformer 无法处理语言。与 LM Head 权重绑定可节省参数。",
+            references = listOf(Reference("Attention 论文", "https://arxiv.org/abs/1706.03762"))
+        )
+    )
+    val lmhead = Overview(
+        en = OverviewContent(
+            title = "LM Head",
+            formula = "logits = H · W_unembed  where H ∈ ℝ^{B×S×d}, W ∈ ℝ^{d×V}",
+            algorithm = "Final hidden states → linear projection → softmax → probability distribution over V",
+            why = "Converts transformer output to vocabulary probabilities for next-token prediction.",
+            references = listOf(Reference("Weight Tying", "https://arxiv.org/abs/1608.05859"))
+        ),
+        zh = OverviewContent(
+            title = "语言模型头",
+            formula = "logits = H · W_unembed  其中 H ∈ ℝ^{B×S×d}, W ∈ ℝ^{d×V}",
+            algorithm = "最终隐藏状态 → 线性投影 → softmax → 词汇表概率分布",
+            why = "将 Transformer 输出转换为词汇表概率，用于下一个 token 预测。",
+            references = listOf(Reference("Weight Tying 论文", "https://arxiv.org/abs/1608.05859"))
+        )
+    )
+    val optimizer = Overview(
+        en = OverviewContent(
+            title = "Adam Optimizer",
+            formula = "m_t = β₁m_{t-1} + (1-β₁)g_t; v_t = β₂v_{t-1} + (1-β₂)g_t²; θ -= α·m̂/(√v̂+ε)",
+            algorithm = "Compute gradients → update moment estimates → bias correct → adaptive step",
+            why = "Standard transformer optimizer combining momentum + adaptive LR. Used since 2014.",
+            references = listOf(Reference("Adam Paper", "https://arxiv.org/abs/1412.6980"))
+        ),
+        zh = OverviewContent(
+            title = "Adam 优化器",
+            formula = "m_t = β₁m_{t-1} + (1-β₁)g_t; v_t = β₂v_{t-1} + (1-β₂)g_t²; θ -= α·m̂/(√v̂+ε)",
+            algorithm = "计算梯度 → 更新矩估计 → 偏差修正 → 自适应步长",
+            why = "标准 Transformer 优化器，结合动量和自适应学习率。自 2014 年起使用。",
+            references = listOf(Reference("Adam 论文", "https://arxiv.org/abs/1412.6980"))
+        )
+    )
+    val training = Overview(
+        en = OverviewContent(
+            title = "Training Loop",
+            formula = "for batch: forward → loss → backward → optimizer.step()",
+            algorithm = "Forward pass, compute loss, backward pass (gradients), optimizer step. Repeat for n_epochs.",
+            why = "The learning mechanism. Each iteration reduces loss via gradient descent. Add clipping + LR scheduling.",
+            references = listOf(Reference("CS336 A1", "https://stanford-cs336.github.io/"))
+        ),
+        zh = OverviewContent(
+            title = "训练循环",
+            formula = "for batch: forward → loss → backward → optimizer.step()",
+            algorithm = "前向传播，计算损失，反向传播（梯度），优化器步骤。重复 n_epochs。",
+            why = "学习机制。每次迭代通过梯度下降减少损失。添加裁剪+学习率调度。",
+            references = listOf(Reference("CS336 A1", "https://stanford-cs336.github.io/"))
+        )
+    )
+    val fullreview = Overview(
+        en = OverviewContent(
+            title = "Full Code Review",
+            formula = "Input → Embedding → [Block×N] → RMSNorm → LM Head → Loss",
+            algorithm = "All 10 components assembled. Review end-to-end architecture with real code.",
+            why = "See how components fit together. Essential for debugging and extending the model.",
+            references = listOf(Reference("Attention Paper", "https://arxiv.org/abs/1706.03762"))
+        ),
+        zh = OverviewContent(
+            title = "完整代码审查",
+            formula = "输入 → 嵌入 → [Block×N] → RMSNorm → LM Head → Loss",
+            algorithm = "全部 10 个组件组装。使用真实代码审查端到端架构。",
+            why = "查看组件如何组合。对调试和扩展模型至关重要。",
+            references = listOf(Reference("Attention 论文", "https://arxiv.org/abs/1706.03762"))
+        )
+    )
+
+
     fun getOverview(componentId: String): Overview? = when (componentId) {
         "bpe" -> bpe
         "rmsnorm" -> rmsnorm
@@ -311,6 +394,11 @@ object ComponentOverviews {
         "attention" -> attention
         "ffn" -> ffn
         "transformer" -> transformer
+        "embedding" -> embedding
+        "lmhead" -> lmhead
+        "optimizer" -> optimizer
+        "training" -> training
+        "fullreview" -> fullreview
         else -> null
     }
 }
