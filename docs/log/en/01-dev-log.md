@@ -2,6 +2,28 @@
 
 > **English** · [中文版](../zh/01-dev-log.md)
 
+## 2026-07-11 — Chat History Fixes + WSL Sync Documentation
+
+### Clear Button — Dual Fix
+- ✅ TopAppBar Clear: `viewModel.clearChatHistory()` directly in parent composable
+- ✅ Chat-area Clear: `hiltViewModel().clearChatHistory()` to bypass broken callback chain
+- ⚠️ Root cause: `onClearChat` callback defaulted to `{}` — never wired to ViewModel
+
+### Chat History Persistence
+- ✅ Room DB insertions verified working (CHAT_DB logging)
+- ✅ Clear button verified: DB empty after clear, survives restart
+- ✅ `.take(50)` truncation removed from assistant message storage
+- ✅ Context truncation increased from 200→800 chars
+- ✅ Local LLM `nPredict` set to 512 tokens
+
+### WSL File Sync Issue Documented
+- 📄 `docs/troubleshooting/01-wsl-file-sync.md`
+- `//wsl$/` writes are unreliable — use `wsl -d myUbuntu -- sed -i` instead
+- Windows and WSL files diverge (86-line stub vs 587-line real file)
+
+### 11 Component Overviews
+- ✅ All 11 components now have EN/CN formula, algorithm, why, references
+
 ## 2026-07-09 — Persistent Chat History + Clear Button
 
 ### Chat Database
