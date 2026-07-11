@@ -21,7 +21,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
-    @Provides @Singleton fun provideDatabase(@ApplicationContext c: Context) = Room.databaseBuilder(c, TutorDatabase::class.java, "cs336_tutor.db").build()
+    @Provides @Singleton fun provideDatabase(@ApplicationContext c: Context) = Room.databaseBuilder(c, TutorDatabase::class.java, "cs336_tutor.db").fallbackToDestructiveMigration().allowMainThreadQueries().build()
     @Provides @Singleton fun provideProgressDao(db: TutorDatabase) = db.progressDao()
     @Provides @Singleton fun provideChatMessageDao(db: TutorDatabase) = db.chatMessageDao()
     @Provides @Singleton fun provideTutorEngine(e: TutorEngineImpl): TutorEngine = e

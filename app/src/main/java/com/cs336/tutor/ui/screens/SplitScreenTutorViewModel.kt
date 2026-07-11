@@ -183,9 +183,9 @@ class SplitScreenTutorViewModel @Inject constructor(
     }
 
     fun clearChatHistory() {
-        val id = _uiState.value.componentId
-        // Clear DB synchronously so restart doesn't bring history back
-        runBlocking { chatMessageDao.clearComponent(id) }
+        viewModelScope.launch {
+            chatMessageDao.clearComponent(_uiState.value.componentId)
+        }
         _uiState.value = _uiState.value.copy(chatMessages = emptyList())
     }
 }
