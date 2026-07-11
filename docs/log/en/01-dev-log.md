@@ -15,7 +15,11 @@
 - ✅ Chat history auto-loaded when opening a component (`LaunchedEffect`)
 - ✅ Survives app restarts and component switches
 
-### Clear Button
+### Clear Button (Fixed)
+- ✅ "Clear" button in chat header now works
+- ⚠️ Root cause: ViewModel state update inside `viewModelScope.launch` not triggering UI recomposition
+- ✅ Fix: local `_chatCleared` mutable state in composable for instant response
+- ✅ ViewModel still cleans DB via `clearChatHistory()`
 - ✅ "Clear" button in chat header (red, label-small)
 - ✅ Clears both Room DB and in-memory state
 - ✅ Bilingual labels (EN "Chat" / "Clear", ZH "聊天记录" / "清除")
